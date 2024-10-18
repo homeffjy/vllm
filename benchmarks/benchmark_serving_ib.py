@@ -128,11 +128,15 @@ def sample_sharegpt_requests(
 
 
 def sample_infinitebench_requests(
+    input_len: int,
     dataset_path: str,
     num_requests: int,
     tokenizer: PreTrainedTokenizerBase,
     fixed_output_len: Optional[int] = None,
 ) -> List[Tuple[str, int, int, None]]:
+    assert (input_len <= 131072
+            ), "prompt len should not longer than 128k for qwen"
+    
     # Load the dataset.
     ft = Features({
         "id": Value("int64"),
@@ -143,8 +147,7 @@ def sample_infinitebench_requests(
     })
     
     dataset = load_dataset(dataset_path, features=ft)
-    dataset = dataset['passkey']
-    contexts = set() # avoid tokenize useless prompt
+    dataset = dataset['passkey'] # The passkey dataset's context can be truncated for free
     length = len(dataset['answer'])
 
     filtered_dataset: List[Tuple[str, int, int]] = []
@@ -152,17 +155,18 @@ def sample_infinitebench_requests(
         if len(filtered_dataset) == num_requests:
             break
         
-        if dataset['context'][i] in contexts: 
-            continue
-
         # Tokenize the prompts
-        prompt = 'context: ' + dataset['context'][i] + ' input: ' + dataset['input'][i] + ' answer:'
-        prompt_token_ids = tokenizer(prompt).input_ids
-        prompt_len = len(prompt_token_ids)
+        prompt_context = 'context: ' + dataset['context'][i]
+        prompt_input = ' input: ' + dataset['input'][i] + ' answer:'
+        prompt_context_token_ids = tokenizer(prompt_context).input_ids
+        prompt_input_token_ids = tokenizer(prompt_input).input_ids
         
-        if prompt_len > 131072: # prompt len should not longer than 128k for qwen
-            contexts.add(dataset['context'][i])
-            continue
+        # Truncate abundant context
+        prompt_context_token_ids = prompt_context_token_ids[:input_len - len(prompt_input_token_ids)]
+        prompt = tokenizer.decode(prompt_context_token_ids) + prompt_input
+
+        prompt_len = input_len
+        
         completion = dataset['answer'][i]
         completion_token_ids = tokenizer(completion).input_ids
         output_len = 10 + len(completion_token_ids # add 10 for corner case
@@ -535,6 +539,7 @@ def main(args: argparse.Namespace):
 
     elif args.dataset_name == "ib":
         input_requests = sample_infinitebench_requests(
+            input_len=args.ib_input_len,
             dataset_path=args.dataset_path,
             num_requests=args.num_prompts,
             tokenizer=tokenizer,
@@ -773,6 +778,12 @@ if __name__ == "__main__":
     )
 
     infintebench_group = parser.add_argument_group("infinite bench dataset options")
+    infintebench_group.add_argument(
+        "--ib-input-len",
+        type=int,
+        default=2048,
+        help="Number of input tokens per request, used only for InfiniteBench PassKey retrieve"
+    )
     infintebench_group.add_argument(
         "--ib-output-len",
         type=int,
