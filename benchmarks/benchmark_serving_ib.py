@@ -24,8 +24,6 @@ On the client side, run:
 """
 import argparse
 import asyncio
-import base64
-import io
 import json
 import os
 import random
@@ -33,13 +31,12 @@ import time
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, AsyncGenerator, Collection, Dict, List, Optional, Tuple
+from typing import Any, AsyncGenerator, Dict, List, Optional, Tuple
 
 import numpy as np
 from backend_request_func import (ASYNC_REQUEST_FUNCS, RequestFuncInput,
                                   RequestFuncOutput)
-from datasets import load_dataset, Features, Value, Sequence
-from PIL.Image import Image
+from datasets import Features, Sequence, Value, load_dataset
 from tqdm.asyncio import tqdm
 from transformers import PreTrainedTokenizerBase
 
@@ -134,9 +131,9 @@ def sample_infinitebench_requests(
     tokenizer: PreTrainedTokenizerBase,
     fixed_output_len: Optional[int] = None,
 ) -> List[Tuple[str, int, int, None]]:
-    assert (input_len <= 131072
-            ), "prompt len should not longer than 128k for qwen"
-    
+    assert (input_len <=
+            131072), "prompt len should not longer than 128k for qwen"
+
     # Load the dataset.
     ft = Features({
         "id": Value("int64"),
@@ -145,39 +142,44 @@ def sample_infinitebench_requests(
         "answer": Sequence(Value("string")),
         "options": Sequence(Value("string"))
     })
-    
+
     dataset = load_dataset(dataset_path, features=ft)
-    dataset = dataset['passkey'] # The passkey dataset's context can be truncated for free
+    dataset = dataset[
+        'passkey']  # The passkey dataset's context can be truncated for free
     length = len(dataset['answer'])
 
     filtered_dataset: List[Tuple[str, int, int]] = []
     for i in range(length):
         if len(filtered_dataset) == num_requests:
             break
-        
+
         # Tokenize the prompts
         prompt_context = 'context: ' + dataset['context'][i]
         prompt_input = ' input: ' + dataset['input'][i] + ' answer:'
         prompt_context_token_ids = tokenizer(prompt_context).input_ids
         prompt_input_token_ids = tokenizer(prompt_input).input_ids
-        
+
         # Truncate abundant context
-        prompt_context_token_ids = prompt_context_token_ids[:input_len - len(prompt_input_token_ids)]
+        prompt_context_token_ids = prompt_context_token_ids[:input_len - len(
+            prompt_input_token_ids)]
         prompt = tokenizer.decode(prompt_context_token_ids) + prompt_input
 
         prompt_len = input_len
-        
+
         completion = dataset['answer'][i]
         completion_token_ids = tokenizer(completion).input_ids
-        output_len = 10 + len(completion_token_ids # add 10 for corner case
-                         ) if fixed_output_len is None else fixed_output_len
+        output_len = 10 + len(
+            completion_token_ids  # add 10 for corner case
+        ) if fixed_output_len is None else fixed_output_len
 
         print("prompt: " + prompt)
         print("output: " + str(completion))
-        print("prompt_len: " + str(prompt_len) + " output_len: " + str(output_len))
+        print("prompt_len: " + str(prompt_len) + " output_len: " +
+              str(output_len))
         filtered_dataset.append((prompt, prompt_len, output_len, None))
 
     return filtered_dataset
+
 
 def sample_random_requests(
     prefix_len: int,
@@ -658,11 +660,12 @@ if __name__ == "__main__":
         choices=["sharegpt", "random", "ib"],
         help="Name of the dataset to benchmark on.",
     )
-    parser.add_argument("--dataset-path",
-                        type=str,
-                        default=None,
-                        help="Path to the sharegpt/sonnet/infinite bench dataset. "
-                        "Or the huggingface dataset ID if using HF dataset.")
+    parser.add_argument(
+        "--dataset-path",
+        type=str,
+        default=None,
+        help="Path to the sharegpt/sonnet/infinite bench dataset. "
+        "Or the huggingface dataset ID if using HF dataset.")
     parser.add_argument(
         "--model",
         type=str,
@@ -777,19 +780,19 @@ if __name__ == "__main__":
         "Use \"--percentile-metrics\" to select metrics.",
     )
 
-    infintebench_group = parser.add_argument_group("infinite bench dataset options")
+    infintebench_group = parser.add_argument_group(
+        "infinite bench dataset options")
     infintebench_group.add_argument(
         "--ib-input-len",
         type=int,
         default=2048,
-        help="Number of input tokens per request, used only for InfiniteBench PassKey retrieve"
-    )
+        help=
+        "Number of input tokens per request, used only for pass key retrieve")
     infintebench_group.add_argument(
         "--ib-output-len",
         type=int,
         default=None,
-        help="Number of output tokens per request, used only for infinite bench dataset."
-    )
+        help="Number of output tokens per request.")
 
     sharegpt_group = parser.add_argument_group("sharegpt dataset options")
     sharegpt_group.add_argument(
