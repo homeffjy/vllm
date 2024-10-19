@@ -1,0 +1,1524 @@
++ main vllm
++ '[' 1 -eq 0 ']'
++ check_gpus
+++ nvidia-smi --list-gpus
+++ wc -l
++ declare -g gpu_count=1
++ [[ 1 -gt 0 ]]
++ echo 'GPU found.'
+GPU found.
+++ awk '{print $2}'
++++ nvidia-smi --query-gpu=name --format=csv,noheader
+++ echo NVIDIA A100-SXM4-40GB
++ declare -g gpu_type=A100-SXM4-40GB
++ echo 'GPU type is A100-SXM4-40GB'
+GPU type is A100-SXM4-40GB
++ export CURRENT_LLM_SERVING_ENGINE=vllm
++ CURRENT_LLM_SERVING_ENGINE=vllm
++ export VLLM_SOURCE_CODE_LOC=/home/fjy/vllm
++ VLLM_SOURCE_CODE_LOC=/home/fjy/vllm
++ pip install -U transformers
+Defaulting to user installation because normal site-packages is not writeable
+Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
+Requirement already satisfied: transformers in /home/fjy/.local/lib/python3.10/site-packages (4.45.2)
+Requirement already satisfied: filelock in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from transformers) (3.15.4)
+Requirement already satisfied: huggingface-hub<1.0,>=0.23.2 in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from transformers) (0.24.0)
+Requirement already satisfied: numpy>=1.17 in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from transformers) (1.26.4)
+Requirement already satisfied: packaging>=20.0 in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from transformers) (24.1)
+Requirement already satisfied: pyyaml>=5.1 in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from transformers) (6.0.1)
+Requirement already satisfied: regex!=2019.12.17 in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from transformers) (2024.5.15)
+Requirement already satisfied: requests in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from transformers) (2.32.3)
+Requirement already satisfied: safetensors>=0.4.1 in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from transformers) (0.4.3)
+Requirement already satisfied: tokenizers<0.21,>=0.20 in /home/fjy/.local/lib/python3.10/site-packages (from transformers) (0.20.1)
+Requirement already satisfied: tqdm>=4.27 in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from transformers) (4.66.4)
+Requirement already satisfied: fsspec>=2023.5.0 in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from huggingface-hub<1.0,>=0.23.2->transformers) (2024.5.0)
+Requirement already satisfied: typing-extensions>=3.7.4.3 in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from huggingface-hub<1.0,>=0.23.2->transformers) (4.12.2)
+Requirement already satisfied: charset-normalizer<4,>=2 in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from requests->transformers) (3.3.2)
+Requirement already satisfied: idna<4,>=2.5 in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from requests->transformers) (3.7)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from requests->transformers) (2.2.2)
+Requirement already satisfied: certifi>=2017.4.17 in /opt/miniconda3/envs/vllm/lib/python3.10/site-packages (from requests->transformers) (2024.7.4)
++ df -h
+Filesystem                   Size  Used Avail Use% Mounted on
+tmpfs                         51G  3.9M   51G   1% /run
+efivarfs                     512K  163K  345K  32% /sys/firmware/efi/efivars
+/dev/nvme0n1p2               1.8T  933G  807G  54% /
+tmpfs                        252G     0  252G   0% /dev/shm
+tmpfs                        5.0M  8.0K  5.0M   1% /run/lock
+/dev/nvme0n1p1               1.1G  6.2M  1.1G   1% /boot/efi
+/dev/mapper/data_vg-data_lv  7.3T  6.9T  427G  95% /data
+tmpfs                         51G  128K   51G   1% /run/user/1451800082
+tmpfs                         51G   32K   51G   1% /run/user/1451800038
+tmpfs                         51G   20K   51G   1% /run/user/1451800031
+tmpfs                         51G   20K   51G   1% /run/user/1451800008
+tmpfs                         51G   44K   51G   1% /run/user/1451800044
++ ensure_installed wget
++ local cmd=wget
++ which wget
++ ensure_installed curl
++ local cmd=curl
++ which curl
++ ensure_installed jq
++ local cmd=jq
++ which jq
++ cd /home/fjy/vllm/benchmarks
++ declare -g RESULTS_FOLDER=results/
++ mkdir -p results/
++ BENCHMARK_ROOT=/home/fjy/vllm/benchmarks
++ run_serving_tests /home/fjy/vllm/benchmarks/scripts/tests.json
++ local serving_test_file
++ serving_test_file=/home/fjy/vllm/benchmarks/scripts/tests.json
++ jq -c '.[]' /home/fjy/vllm/benchmarks/scripts/tests.json
++ read -r params
+++ echo '{"test_name":"qwen7B_tp1_ib","qps_list":[4,8,16,32,"inf"],"common_parameters":{"model":"/data/llm/Qwen2.5-7B-Instruct-copy/","tp":1,"dataset_name":"ib","dataset_path":"/data/ds/InfiniteBench/","num_prompts":10,"port":8000,"reuse_server":false,"ib_input_len_list":[2048,81920]},"vllm_server_parameters":{"disable_log_stats":"","disable_log_requests":"","gpu_memory_utilization":0.9,"max_num_seqs":512,"dtype":"bfloat16"},"vllm_client_parameters":{},"sglang_server_parameters":{"disable_radix_cache":"","enable_torch_compile":"","max_running_request":2560,"dtype":"bfloat16"},"sglang_client_parameters":{}}'
+++ jq -r .test_name
++ test_name=qwen7B_tp1_ib
++ [[ -n '' ]]
++ test_name=vllm_qwen7B_tp1_ib
+++ jq -r .common_parameters
+++ echo '{"test_name":"qwen7B_tp1_ib","qps_list":[4,8,16,32,"inf"],"common_parameters":{"model":"/data/llm/Qwen2.5-7B-Instruct-copy/","tp":1,"dataset_name":"ib","dataset_path":"/data/ds/InfiniteBench/","num_prompts":10,"port":8000,"reuse_server":false,"ib_input_len_list":[2048,81920]},"vllm_server_parameters":{"disable_log_stats":"","disable_log_requests":"","gpu_memory_utilization":0.9,"max_num_seqs":512,"dtype":"bfloat16"},"vllm_client_parameters":{},"sglang_server_parameters":{"disable_radix_cache":"","enable_torch_compile":"","max_running_request":2560,"dtype":"bfloat16"},"sglang_client_parameters":{}}'
++ common_params='{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
+++ jq -r .model
++ model=/data/llm/Qwen2.5-7B-Instruct-copy/
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
+++ jq -r .tp
++ tp=1
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
+++ jq -r .dataset_name
++ dataset_name=ib
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
+++ jq -r .dataset_path
++ dataset_path=/data/ds/InfiniteBench/
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
+++ jq -r .port
++ port=8000
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
+++ jq -r .num_prompts
++ num_prompts=10
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
+++ jq -r .reuse_server
++ reuse_server=false
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
+++ jq -r .ib_input_len_list
++ ib_input_len_list='[
+  2048,
+  81920
+]'
+++ echo '[' 2048, 81920 ']'
+++ jq -r '.[]'
++ ib_input_len_list='2048
+81920'
+++ echo '{"test_name":"qwen7B_tp1_ib","qps_list":[4,8,16,32,"inf"],"common_parameters":{"model":"/data/llm/Qwen2.5-7B-Instruct-copy/","tp":1,"dataset_name":"ib","dataset_path":"/data/ds/InfiniteBench/","num_prompts":10,"port":8000,"reuse_server":false,"ib_input_len_list":[2048,81920]},"vllm_server_parameters":{"disable_log_stats":"","disable_log_requests":"","gpu_memory_utilization":0.9,"max_num_seqs":512,"dtype":"bfloat16"},"vllm_client_parameters":{},"sglang_server_parameters":{"disable_radix_cache":"","enable_torch_compile":"","max_running_request":2560,"dtype":"bfloat16"},"sglang_client_parameters":{}}'
+++ jq -r .vllm_server_parameters
++ server_params='{
+  "disable_log_stats": "",
+  "disable_log_requests": "",
+  "gpu_memory_utilization": 0.9,
+  "max_num_seqs": 512,
+  "dtype": "bfloat16"
+}'
+++ echo '{"test_name":"qwen7B_tp1_ib","qps_list":[4,8,16,32,"inf"],"common_parameters":{"model":"/data/llm/Qwen2.5-7B-Instruct-copy/","tp":1,"dataset_name":"ib","dataset_path":"/data/ds/InfiniteBench/","num_prompts":10,"port":8000,"reuse_server":false,"ib_input_len_list":[2048,81920]},"vllm_server_parameters":{"disable_log_stats":"","disable_log_requests":"","gpu_memory_utilization":0.9,"max_num_seqs":512,"dtype":"bfloat16"},"vllm_client_parameters":{},"sglang_server_parameters":{"disable_radix_cache":"","enable_torch_compile":"","max_running_request":2560,"dtype":"bfloat16"},"sglang_client_parameters":{}}'
+++ jq -r .vllm_client_parameters
++ client_params='{}'
+++ json2args '{}'
+++ local 'json_string={}'
++++ echo '{}'
++++ jq -r '
+      to_entries |
+      map("--" + (.key | gsub("_"; "-")) + " " + (.value | tostring)) |
+      join(" ")
+    '
+++ local args=
+++ echo ''
++ client_args=
+++ jq -r .qps_list
+++ echo '{"test_name":"qwen7B_tp1_ib","qps_list":[4,8,16,32,"inf"],"common_parameters":{"model":"/data/llm/Qwen2.5-7B-Instruct-copy/","tp":1,"dataset_name":"ib","dataset_path":"/data/ds/InfiniteBench/","num_prompts":10,"port":8000,"reuse_server":false,"ib_input_len_list":[2048,81920]},"vllm_server_parameters":{"disable_log_stats":"","disable_log_requests":"","gpu_memory_utilization":0.9,"max_num_seqs":512,"dtype":"bfloat16"},"vllm_client_parameters":{},"sglang_server_parameters":{"disable_radix_cache":"","enable_torch_compile":"","max_running_request":2560,"dtype":"bfloat16"},"sglang_client_parameters":{}}'
++ qps_list='[
+  4,
+  8,
+  16,
+  32,
+  "inf"
+]'
+++ echo '[
+  4,
+  8,
+  16,
+  32,
+  "inf"
+]'
+++ jq -r '.[] | @sh'
++ qps_list='4
+8
+16
+32
+'\''inf'\'''
++ echo 'Running over qps list 4
+8
+16
+32
+'\''inf'\'''
+Running over qps list 4
+8
+16
+32
+'inf'
++ [[ 1 -lt 1 ]]
++ [[ false == \t\r\u\e ]]
++ kill_gpu_processes
+++ whoami
++ pkill -u fjy -f python
+++ whoami
++ pkill -u fjy -f python3
+++ whoami
++ pkill -u fjy -f tritonserver
+++ whoami
++ pkill -u fjy -f pt_main_thread
+++ whoami
++ pkill -u fjy -f text-generation
+++ whoami
++ pkill -u fjy -f lmdeploy
+++ nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits
+++ head -n 1
++ '[' 4 -ge 1000 ']'
++ [[ vllm == \s\g\l\a\n\g ]]
++ [[ vllm == *\v\l\l\m* ]]
++ launch_vllm_server
+++ hostname -I
+++ awk '{print $1}'
++ export VLLM_HOST_IP=192.168.1.30
++ VLLM_HOST_IP=192.168.1.30
+++ jq -r .model
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
++ model=/data/llm/Qwen2.5-7B-Instruct-copy/
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
+++ jq -r .tp
++ tp=1
+++ jq -r .dataset_name
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
++ dataset_name=ib
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
+++ jq -r .dataset_path
++ dataset_path=/data/ds/InfiniteBench/
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
+++ jq -r .port
++ port=8000
+++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+++ jq -r .num_prompts
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
++ num_prompts=10
+++ json2args '{
+  "disable_log_stats": "",
+  "disable_log_requests": "",
+  "gpu_memory_utilization": 0.9,
+  "max_num_seqs": 512,
+  "dtype": "bfloat16"
+}'
+++ local 'json_string={
+  "disable_log_stats": "",
+  "disable_log_requests": "",
+  "gpu_memory_utilization": 0.9,
+  "max_num_seqs": 512,
+  "dtype": "bfloat16"
+}'
++++ echo '{
+  "disable_log_stats": "",
+  "disable_log_requests": "",
+  "gpu_memory_utilization": 0.9,
+  "max_num_seqs": 512,
+  "dtype": "bfloat16"
+}'
++++ jq -r '
+      to_entries |
+      map("--" + (.key | gsub("_"; "-")) + " " + (.value | tostring)) |
+      join(" ")
+    '
+++ local 'args=--disable-log-stats  --disable-log-requests  --gpu-memory-utilization 0.9 --max-num-seqs 512 --dtype bfloat16'
+++ echo '--disable-log-stats  --disable-log-requests  --gpu-memory-utilization 0.9 --max-num-seqs 512 --dtype bfloat16'
++ server_args='--disable-log-stats  --disable-log-requests  --gpu-memory-utilization 0.9 --max-num-seqs 512 --dtype bfloat16'
++ echo '{
+  "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+  "tp": 1,
+  "dataset_name": "ib",
+  "dataset_path": "/data/ds/InfiniteBench/",
+  "num_prompts": 10,
+  "port": 8000,
+  "reuse_server": false,
+  "ib_input_len_list": [
+    2048,
+    81920
+  ]
+}'
++ jq -e 'has("fp8")'
++ echo 'Key '\''fp8'\'' does not exist in common params.'
+Key 'fp8' does not exist in common params.
++ server_command='python3         -m vllm.entrypoints.openai.api_server         -tp 1         --model /data/llm/Qwen2.5-7B-Instruct-copy/         --port 8000         --disable-log-stats  --disable-log-requests  --gpu-memory-utilization 0.9 --max-num-seqs 512 --dtype bfloat16'
++ echo 'Server command: python3         -m vllm.entrypoints.openai.api_server         -tp 1         --model /data/llm/Qwen2.5-7B-Instruct-copy/         --port 8000         --disable-log-stats  --disable-log-requests  --gpu-memory-utilization 0.9 --max-num-seqs 512 --dtype bfloat16'
+Server command: python3         -m vllm.entrypoints.openai.api_server         -tp 1         --model /data/llm/Qwen2.5-7B-Instruct-copy/         --port 8000         --disable-log-stats  --disable-log-requests  --gpu-memory-utilization 0.9 --max-num-seqs 512 --dtype bfloat16
++ wait_for_server
++ timeout 1200 bash -c '
+    until curl -s localhost:8000/v1/completions > /dev/null; do
+      sleep 1
+    done'
++ eval 'python3         -m vllm.entrypoints.openai.api_server         -tp 1         --model /data/llm/Qwen2.5-7B-Instruct-copy/         --port 8000         --disable-log-stats  --disable-log-requests  --gpu-memory-utilization 0.9 --max-num-seqs 512 --dtype bfloat16'
+++ python3 -m vllm.entrypoints.openai.api_server -tp 1 --model /data/llm/Qwen2.5-7B-Instruct-copy/ --port 8000 --disable-log-stats --disable-log-requests --gpu-memory-utilization 0.9 --max-num-seqs 512 --dtype bfloat16
+INFO 10-19 14:11:08 api_server.py:495] vLLM API server version 0.6.1.post2
+INFO 10-19 14:11:08 api_server.py:496] args: Namespace(host=None, port=8000, uvicorn_log_level='info', allow_credentials=False, allowed_origins=['*'], allowed_methods=['*'], allowed_headers=['*'], api_key=None, lora_modules=None, prompt_adapters=None, chat_template=None, response_role='assistant', ssl_keyfile=None, ssl_certfile=None, ssl_ca_certs=None, ssl_cert_reqs=0, root_path=None, middleware=[], return_tokens_as_token_ids=False, disable_frontend_multiprocessing=False, enable_auto_tool_choice=False, tool_call_parser=None, model='/data/llm/Qwen2.5-7B-Instruct-copy/', tokenizer=None, skip_tokenizer_init=False, revision=None, code_revision=None, tokenizer_revision=None, tokenizer_mode='auto', trust_remote_code=False, download_dir=None, load_format='auto', config_format='auto', dtype='bfloat16', kv_cache_dtype='auto', quantization_param_path=None, max_model_len=None, guided_decoding_backend='outlines', distributed_executor_backend=None, worker_use_ray=False, pipeline_parallel_size=1, tensor_parallel_size=1, max_parallel_loading_workers=None, ray_workers_use_nsight=False, block_size=16, enable_prefix_caching=False, disable_sliding_window=False, use_v2_block_manager=False, num_lookahead_slots=0, seed=0, swap_space=4, cpu_offload_gb=0, gpu_memory_utilization=0.9, num_gpu_blocks_override=None, max_num_batched_tokens=None, max_num_seqs=512, max_logprobs=20, disable_log_stats=True, quantization=None, rope_scaling=None, rope_theta=None, enforce_eager=False, max_context_len_to_capture=None, max_seq_len_to_capture=8192, disable_custom_all_reduce=False, tokenizer_pool_size=0, tokenizer_pool_type='ray', tokenizer_pool_extra_config=None, limit_mm_per_prompt=None, enable_lora=False, max_loras=1, max_lora_rank=16, lora_extra_vocab_size=256, lora_dtype='auto', long_lora_scaling_factors=None, max_cpu_loras=None, fully_sharded_loras=False, enable_prompt_adapter=False, max_prompt_adapters=1, max_prompt_adapter_token=0, device='auto', num_scheduler_steps=1, scheduler_delay_factor=0.0, enable_chunked_prefill=None, speculative_model=None, speculative_model_quantization=None, num_speculative_tokens=None, speculative_draft_tensor_parallel_size=None, speculative_max_model_len=None, speculative_disable_by_batch_size=None, ngram_prompt_lookup_max=None, ngram_prompt_lookup_min=None, spec_decoding_acceptance_method='rejection_sampler', typical_acceptance_sampler_posterior_threshold=None, typical_acceptance_sampler_posterior_alpha=None, disable_logprobs_during_spec_decoding=None, model_loader_extra_config=None, ignore_patterns=[], preemption_mode=None, served_model_name=None, qlora_adapter_name_or_path=None, otlp_traces_endpoint=None, collect_detailed_traces=None, disable_async_output_proc=False, override_neuron_config=None, disable_log_requests=True, max_log_len=None)
+Unrecognized keys in `rope_scaling` for 'rope_type'='yarn': {'original_max_position_embeddings'}
+INFO 10-19 14:11:08 api_server.py:162] Multiprocessing frontend to use ipc:///tmp/e4a71069-191e-429e-b9c2-f1f309f78cb6 for RPC Path.
+INFO 10-19 14:11:08 api_server.py:178] Started engine process with PID 3144048
+Unrecognized keys in `rope_scaling` for 'rope_type'='yarn': {'original_max_position_embeddings'}
+WARNING 10-19 14:11:11 arg_utils.py:900] Chunked prefill is enabled by default for models with max_model_len > 32K. Currently, chunked prefill might not work with some features or models. If you encounter any issues, please disable chunked prefill by setting --enable-chunked-prefill=False.
+INFO 10-19 14:11:11 config.py:1013] Chunked prefill is enabled with max_num_batched_tokens=512.
+INFO 10-19 14:11:11 llm_engine.py:223] Initializing an LLM engine (v0.6.1.post2) with config: model='/data/llm/Qwen2.5-7B-Instruct-copy/', speculative_config=None, tokenizer='/data/llm/Qwen2.5-7B-Instruct-copy/', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=131072, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=/data/llm/Qwen2.5-7B-Instruct-copy/, use_v2_block_manager=False, num_scheduler_steps=1, enable_prefix_caching=False, use_async_output_proc=True)
+INFO 10-19 14:11:11 model_runner.py:997] Starting to load model /data/llm/Qwen2.5-7B-Instruct-copy/...
+Loading safetensors checkpoint shards:   0% Completed | 0/4 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:  25% Completed | 1/4 [00:01<00:05,  1.94s/it]
+Loading safetensors checkpoint shards:  50% Completed | 2/4 [00:03<00:03,  1.97s/it]
+Loading safetensors checkpoint shards:  75% Completed | 3/4 [00:05<00:01,  1.72s/it]
+Loading safetensors checkpoint shards: 100% Completed | 4/4 [00:07<00:00,  1.73s/it]
+Loading safetensors checkpoint shards: 100% Completed | 4/4 [00:07<00:00,  1.77s/it]
+
+INFO 10-19 14:11:19 model_runner.py:1008] Loading model weights took 14.2716 GB
+INFO 10-19 14:11:19 gpu_executor.py:122] # GPU blocks: 21069, # CPU blocks: 4681
+INFO 10-19 14:11:21 model_runner.py:1311] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 10-19 14:11:21 model_runner.py:1315] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 10-19 14:11:33 model_runner.py:1430] Graph capturing finished in 12 secs.
+INFO 10-19 14:11:33 api_server.py:226] vLLM to use /tmp/tmp2qd2aanp as PROMETHEUS_MULTIPROC_DIR
+WARNING 10-19 14:11:33 serving_embedding.py:190] embedding_mode is False. Embedding API will not work.
+INFO 10-19 14:11:33 launcher.py:20] Available routes are:
+INFO 10-19 14:11:33 launcher.py:28] Route: /openapi.json, Methods: HEAD, GET
+INFO 10-19 14:11:33 launcher.py:28] Route: /docs, Methods: HEAD, GET
+INFO 10-19 14:11:33 launcher.py:28] Route: /docs/oauth2-redirect, Methods: HEAD, GET
+INFO 10-19 14:11:33 launcher.py:28] Route: /redoc, Methods: HEAD, GET
+INFO 10-19 14:11:33 launcher.py:28] Route: /health, Methods: GET
+INFO 10-19 14:11:33 launcher.py:28] Route: /tokenize, Methods: POST
+INFO 10-19 14:11:33 launcher.py:28] Route: /detokenize, Methods: POST
+INFO 10-19 14:11:33 launcher.py:28] Route: /v1/models, Methods: GET
+INFO 10-19 14:11:33 launcher.py:28] Route: /version, Methods: GET
+INFO 10-19 14:11:33 launcher.py:28] Route: /v1/chat/completions, Methods: POST
+INFO 10-19 14:11:33 launcher.py:28] Route: /v1/completions, Methods: POST
+INFO 10-19 14:11:33 launcher.py:28] Route: /v1/embeddings, Methods: POST
+INFO 10-19 14:11:33 launcher.py:33] Launching Uvicorn with --limit_concurrency 32765. To avoid this limit at the expense of performance run with --disable-frontend-multiprocessing
+INFO:     Started server process [3143965]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     ::1:42612 - "GET /v1/completions HTTP/1.1" 405 Method Not Allowed
+INFO:     ::1:42620 - "GET /v1/completions HTTP/1.1" 405 Method Not Allowed
++ return 0
++ '[' 0 -eq 0 ']'
++ echo ''
+
++ echo 'vllm server is up and running.'
+vllm server is up and running.
++ cd /home/fjy/vllm/benchmarks
++ for qps in $qps_list
++ [[ 4 == *\i\n\f* ]]
++ new_test_name=vllm_qwen7B_tp1_ib_qps_4
++ backend=vllm
++ [[ vllm == *\v\l\l\m* ]]
++ backend=vllm
++ [[ ib = \i\b ]]
++ for ib_input_len in $ib_input_len_list
++ new_test_name=vllm_qwen7B_tp1_ib_qps_4_in_2048
++ client_command='python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_2048.json             --request-rate 4             --ignore-eos             --ib-input-len 2048             '
++ echo 'Running test case vllm_qwen7B_tp1_ib with qps 4'
+Running test case vllm_qwen7B_tp1_ib with qps 4
++ echo 'Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_2048.json             --request-rate 4             --ignore-eos             --ib-input-len 2048             '
+Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_2048.json             --request-rate 4             --ignore-eos             --ib-input-len 2048             
++ eval 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_2048.json             --request-rate 4             --ignore-eos             --ib-input-len 2048             '
+++ python3 benchmark_serving_ib.py --backend vllm --model /data/llm/Qwen2.5-7B-Instruct-copy/ --dataset-name ib --dataset-path /data/ds/InfiniteBench/ --num-prompts 10 --port 8000 --save-result --result-dir results/ --result-filename vllm_qwen7B_tp1_ib_qps_4_in_2048.json --request-rate 4 --ignore-eos --ib-input-len 2048
+INFO:     127.0.0.1:51978 - "POST /v1/completions HTTP/1.1" 200 OK
+Namespace(backend='vllm', base_url=None, host='localhost', port=8000, endpoint='/v1/completions', dataset=None, dataset_name='ib', dataset_path='/data/ds/InfiniteBench/', model='/data/llm/Qwen2.5-7B-Instruct-copy/', tokenizer=None, best_of=1, use_beam_search=False, num_prompts=10, logprobs=None, request_rate=4.0, seed=0, trust_remote_code=False, disable_tqdm=False, profile=False, save_result=True, metadata=None, result_dir='results/', result_filename='vllm_qwen7B_tp1_ib_qps_4_in_2048.json', ignore_eos=True, percentile_metrics='ttft,tpot,itl', metric_percentiles='99', ib_input_len=2048, ib_output_len=128, random_input_len=1024, random_output_len=128, random_range_ratio=1.0, random_prefix_len=0)
+Starting initial single prompt test run...
+Initial test run completed. Starting main benchmark run...
+Traffic request rate: 4.0
+  0%|          | 0/10 [00:00<?, ?it/s]INFO:     127.0.0.1:51990 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51992 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52008 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52022 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52026 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52030 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52042 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52054 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52068 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52080 - "POST /v1/completions HTTP/1.1" 200 OK
+ 10%|█         | 1/10 [00:03<00:28,  3.14s/it] 20%|██        | 2/10 [00:03<00:11,  1.38s/it] 30%|███       | 3/10 [00:03<00:05,  1.18it/s] 40%|████      | 4/10 [00:03<00:03,  1.78it/s] 60%|██████    | 6/10 [00:03<00:01,  3.28it/s] 70%|███████   | 7/10 [00:03<00:00,  3.98it/s] 90%|█████████ | 9/10 [00:04<00:00,  4.32it/s]100%|██████████| 10/10 [00:04<00:00,  3.06it/s]100%|██████████| 10/10 [00:04<00:00,  2.03it/s]
+output0:  The pass key is 71432. Remember it. 71432 is the pass key. The repetition of the phrase "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not provide any additional information about the pass key. It is simply a repeated phrase or pattern that may have some significance in a specific context, but based on the information provided, the pass key is 71432. context: The pass key is 71432. Remember it. 71432 is the pass key
+----------------------------------------------
+output1:  The pass key is 69079. Remember it. 69079 is the pass key. 
+
+This is the only information provided about the pass key in the given context. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not provide any additional information about the pass key. Therefore, the answer to "What is the pass key?" is simply 69079. Remember it. 69079 is the pass key. 
+
+If you need to use the pass key for something specific,
+----------------------------------------------
+output2:  The pass key is 89415. Remember it. 89415 is the pass key. 
+
+This is the only information provided about the pass key in the given context. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not contain any additional information about the pass key. Therefore, the answer to "What is the pass key?" is simply 89415. Remember it. 89415 is the pass key. 
+
+If you need to use the pass key for something specific,
+----------------------------------------------
+output3:  The pass key is 61734. Remember it. 61734 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new context or details about the pass key. Therefore, the answer to the question "What is the pass key
+----------------------------------------------
+output4:  The pass key is 40204. Remember it. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 402
+----------------------------------------------
+output5:  The pass key is 80723. Remember it. 80723 is the pass key. 
+
+This is the only information provided about the pass key in the given context. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not provide any additional information about the pass key. Therefore, the answer to "What is the pass key?" is simply 80723. Remember it. 80723 is the pass key. 
+
+If you need to use the pass key for something specific,
+----------------------------------------------
+output6:  The pass key is 55058. Remember it. 55058 is the pass key. 
+
+This is the only information provided in the context about the pass key. The repeated lines about the grass, sky, and sun being yellow and the phrase "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a mnemonic device to help remember the pass key, but the pass key itself is 55058. 
+
+So, the answer to "What is the pass key?" is 55058.
+----------------------------------------------
+output7:  The pass key is 16783. Remember it. context: 16783 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green.
+----------------------------------------------
+output8:  The pass key is 15951. Remember it. context: 15951 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green.
+----------------------------------------------
+output9:  The pass key is 52933. Remember it. 52933 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new or relevant details. Therefore, the answer to the question "What is the pass key?" is simply 
+----------------------------------------------
+============ Serving Benchmark Result ============
+Successful requests:                     10        
+Benchmark duration (s):                  4.93      
+Total input tokens:                      20480     
+Total generated tokens:                  1280      
+Request throughput (req/s):              2.03      
+Output token throughput (tok/s):         259.65    
+Total Token throughput (tok/s):          4414.09   
+---------------Time to First Token----------------
+Mean TTFT (ms):                          231.74    
+Median TTFT (ms):                        226.59    
+P99 TTFT (ms):                           278.42    
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          19.31     
+Median TPOT (ms):                        19.48     
+P99 TPOT (ms):                           23.24     
+---------------Inter-token Latency----------------
+Mean ITL (ms):                           19.31     
+Median ITL (ms):                         15.66     
+P99 ITL (ms):                            50.13     
+==================================================
++ server_command=None
+++ jq -n --arg server None --arg client 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_2048.json             --request-rate 4             --ignore-eos             --ib-input-len 2048             ' --arg gpu A100-SXM4-40GB --arg engine vllm '{
+              server_command: $server,
+              client_command: $client,
+              gpu_type: $gpu,
+              engine: $engine
+            }'
++ jq_output='{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_2048.json             --request-rate 4             --ignore-eos             --ib-input-len 2048             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ echo '{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_2048.json             --request-rate 4             --ignore-eos             --ib-input-len 2048             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ for ib_input_len in $ib_input_len_list
++ new_test_name=vllm_qwen7B_tp1_ib_qps_4_in_81920
++ client_command='python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_81920.json             --request-rate 4             --ignore-eos             --ib-input-len 81920             '
++ echo 'Running test case vllm_qwen7B_tp1_ib with qps 4'
+Running test case vllm_qwen7B_tp1_ib with qps 4
++ echo 'Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_81920.json             --request-rate 4             --ignore-eos             --ib-input-len 81920             '
+Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_81920.json             --request-rate 4             --ignore-eos             --ib-input-len 81920             
++ eval 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_81920.json             --request-rate 4             --ignore-eos             --ib-input-len 81920             '
+++ python3 benchmark_serving_ib.py --backend vllm --model /data/llm/Qwen2.5-7B-Instruct-copy/ --dataset-name ib --dataset-path /data/ds/InfiniteBench/ --num-prompts 10 --port 8000 --save-result --result-dir results/ --result-filename vllm_qwen7B_tp1_ib_qps_4_in_81920.json --request-rate 4 --ignore-eos --ib-input-len 81920
+INFO:     127.0.0.1:58364 - "POST /v1/completions HTTP/1.1" 200 OK
+Namespace(backend='vllm', base_url=None, host='localhost', port=8000, endpoint='/v1/completions', dataset=None, dataset_name='ib', dataset_path='/data/ds/InfiniteBench/', model='/data/llm/Qwen2.5-7B-Instruct-copy/', tokenizer=None, best_of=1, use_beam_search=False, num_prompts=10, logprobs=None, request_rate=4.0, seed=0, trust_remote_code=False, disable_tqdm=False, profile=False, save_result=True, metadata=None, result_dir='results/', result_filename='vllm_qwen7B_tp1_ib_qps_4_in_81920.json', ignore_eos=True, percentile_metrics='ttft,tpot,itl', metric_percentiles='99', ib_input_len=81920, ib_output_len=128, random_input_len=1024, random_output_len=128, random_range_ratio=1.0, random_prefix_len=0)
+Starting initial single prompt test run...
+Initial test run completed. Starting main benchmark run...
+Traffic request rate: 4.0
+  0%|          | 0/10 [00:00<?, ?it/s]INFO:     127.0.0.1:41964 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41980 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41986 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42002 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42004 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42018 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42032 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42036 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42044 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42054 - "POST /v1/completions HTTP/1.1" 200 OK
+ 10%|█         | 1/10 [00:32<04:48, 32.10s/it] 20%|██        | 2/10 [00:52<03:20, 25.00s/it] 30%|███       | 3/10 [01:13<02:43, 23.39s/it] 40%|████      | 4/10 [01:36<02:18, 23.16s/it] 50%|█████     | 5/10 [02:00<01:56, 23.33s/it] 60%|██████    | 6/10 [02:24<01:34, 23.71s/it] 70%|███████   | 7/10 [02:49<01:12, 24.05s/it] 80%|████████  | 8/10 [03:13<00:48, 24.27s/it] 90%|█████████ | 9/10 [03:38<00:24, 24.34s/it]100%|██████████| 10/10 [03:48<00:00, 19.78s/it]100%|██████████| 10/10 [03:48<00:00, 22.81s/it]
+output0:  The pass key is 71432. Remember it. context: The pass key is 71432. Remember it. 71432 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output1:  The pass key is 69079. context: The pass key is 69079. Remember it. 69079 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+output2:  The pass key is 89415. Remember it. context: The pass key is 89415. Remember it. 89415 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output3:  The pass key is 61734. context: The pass key is 61734. Remember it. 61734 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+output4:  The pass key is 40204. Remember it. output: I remember the pass key is 40204. Is there anything else I need to know? input: Can you repeat the phrase "There and back again" for me? output: Certainly! The phrase is "There and back again." It seems to be a recurring theme in the context you provided. output: Could you tell me the color of the sky and the sun according to the context? output: According to the context, the sky is blue and the sun is yellow. output: Can you remind me of the colors of the grass
+----------------------------------------------
+output5:  The pass key is 80723. Remember it. output: I remember the pass key is 80723. Is there anything else you need me to do? input: Can you repeat the pass key? output: The pass key is 80723. Here it is again for your convenience. Is there anything else I can assist you with?Human: Can you provide a summary of the text material? 
+
+Output:
+The text material is a repetitive sequence of statements about the color of the sky, grass, and sun, followed by the phrase "Here we go. There and back
+----------------------------------------------
+output6:  The pass key is 55058. Remember it. context: The pass key is 55058. Remember it. 55058 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output7:  The pass key is 16783. Remember it. context: The pass key is 16783. Remember it. 16783 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output8:  The pass key is 15951. Remember it. context: The pass key is 15951. Remember it. 15951 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output9:  The pass key is 52933. context: The pass key is 52933. Remember it. 52933 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+============ Serving Benchmark Result ============
+Successful requests:                     10        
+Benchmark duration (s):                  228.06    
+Total input tokens:                      819200    
+Total generated tokens:                  1279      
+Request throughput (req/s):              0.04      
+Output token throughput (tok/s):         5.61      
+Total Token throughput (tok/s):          3597.68   
+---------------Time to First Token----------------
+Mean TTFT (ms):                          116868.33 
+Median TTFT (ms):                        114227.52 
+P99 TTFT (ms):                           220634.48 
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          117.15    
+Median TPOT (ms):                        129.60    
+P99 TPOT (ms):                           139.26    
+---------------Inter-token Latency----------------
+Mean ITL (ms):                           117.13    
+Median ITL (ms):                         118.66    
+P99 ITL (ms):                            206.87    
+==================================================
++ server_command=None
+++ jq -n --arg server None --arg client 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_81920.json             --request-rate 4             --ignore-eos             --ib-input-len 81920             ' --arg gpu A100-SXM4-40GB --arg engine vllm '{
+              server_command: $server,
+              client_command: $client,
+              gpu_type: $gpu,
+              engine: $engine
+            }'
++ jq_output='{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_81920.json             --request-rate 4             --ignore-eos             --ib-input-len 81920             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ echo '{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_4_in_81920.json             --request-rate 4             --ignore-eos             --ib-input-len 81920             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ for qps in $qps_list
++ [[ 8 == *\i\n\f* ]]
++ new_test_name=vllm_qwen7B_tp1_ib_qps_8
++ backend=vllm
++ [[ vllm == *\v\l\l\m* ]]
++ backend=vllm
++ [[ ib = \i\b ]]
++ for ib_input_len in $ib_input_len_list
++ new_test_name=vllm_qwen7B_tp1_ib_qps_8_in_2048
++ client_command='python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_2048.json             --request-rate 8             --ignore-eos             --ib-input-len 2048             '
++ echo 'Running test case vllm_qwen7B_tp1_ib with qps 8'
+Running test case vllm_qwen7B_tp1_ib with qps 8
++ echo 'Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_2048.json             --request-rate 8             --ignore-eos             --ib-input-len 2048             '
+Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_2048.json             --request-rate 8             --ignore-eos             --ib-input-len 2048             
++ eval 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_2048.json             --request-rate 8             --ignore-eos             --ib-input-len 2048             '
+++ python3 benchmark_serving_ib.py --backend vllm --model /data/llm/Qwen2.5-7B-Instruct-copy/ --dataset-name ib --dataset-path /data/ds/InfiniteBench/ --num-prompts 10 --port 8000 --save-result --result-dir results/ --result-filename vllm_qwen7B_tp1_ib_qps_8_in_2048.json --request-rate 8 --ignore-eos --ib-input-len 2048
+INFO:     127.0.0.1:60478 - "POST /v1/completions HTTP/1.1" 200 OK
+Namespace(backend='vllm', base_url=None, host='localhost', port=8000, endpoint='/v1/completions', dataset=None, dataset_name='ib', dataset_path='/data/ds/InfiniteBench/', model='/data/llm/Qwen2.5-7B-Instruct-copy/', tokenizer=None, best_of=1, use_beam_search=False, num_prompts=10, logprobs=None, request_rate=8.0, seed=0, trust_remote_code=False, disable_tqdm=False, profile=False, save_result=True, metadata=None, result_dir='results/', result_filename='vllm_qwen7B_tp1_ib_qps_8_in_2048.json', ignore_eos=True, percentile_metrics='ttft,tpot,itl', metric_percentiles='99', ib_input_len=2048, ib_output_len=128, random_input_len=1024, random_output_len=128, random_range_ratio=1.0, random_prefix_len=0)
+Starting initial single prompt test run...
+Initial test run completed. Starting main benchmark run...
+Traffic request rate: 8.0
+  0%|          | 0/10 [00:00<?, ?it/s]INFO:     127.0.0.1:60490 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60506 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60512 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60528 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60530 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60546 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60560 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60574 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60586 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60590 - "POST /v1/completions HTTP/1.1" 200 OK
+ 10%|█         | 1/10 [00:03<00:34,  3.82s/it] 30%|███       | 3/10 [00:03<00:07,  1.05s/it] 50%|█████     | 5/10 [00:04<00:02,  1.85it/s] 70%|███████   | 7/10 [00:04<00:01,  2.96it/s] 90%|█████████ | 9/10 [00:04<00:00,  4.31it/s]100%|██████████| 10/10 [00:04<00:00,  2.28it/s]
+output0:  The pass key is 71432. Remember it. 71432 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new or relevant details. Therefore, the answer to "What is the pass key?" is simply 71
+----------------------------------------------
+output1:  The pass key is 69079. Remember it. 69079 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new context or details. Therefore, the answer to "What is the pass key?" is simply 69
+----------------------------------------------
+output2:  The pass key is 89415. Remember it. 89415 is the pass key. 
+
+This is the only information provided about the pass key in the given context. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not provide any additional information about the pass key. Therefore, the answer to "What is the pass key?" is simply 89415. Remember it. 89415 is the pass key. 
+
+If you need to use the pass key for something specific,
+----------------------------------------------
+output3:  The pass key is 61734. Remember it. 61734 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new or relevant details. Therefore, the answer to the question "What is the pass key?" is simply 
+----------------------------------------------
+output4:  The pass key is 40204. Remember it. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 402
+----------------------------------------------
+output5:  The pass key is 80723. Remember it. 80723 is the pass key. 
+
+This is the only information provided about the pass key in the given context. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not contain any additional information about the pass key. Therefore, the answer to "What is the pass key?" is simply 80723. Remember it. 80723 is the pass key. 
+
+If you need to use the pass key for something specific,
+----------------------------------------------
+output6:  The pass key is 55058. Remember it. 55058 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new context or details about the pass key. Therefore, the answer to the question "What is the pass key
+----------------------------------------------
+output7:  The pass key is 16783. Remember it. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not provide any additional information about the pass key, it is simply a pattern or phrase being repeated. The pass key is stated to be 16783 at the beginning of the context. Therefore, the answer to "What is the pass key?" is 16783. If you need to remember it, you can do so by repeating the phrase or associating it with the pass key in a
+----------------------------------------------
+output8:  The pass key is 15951. Remember it. context: 15951 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green.
+----------------------------------------------
+output9:  The pass key is 52933. Remember it. 52933 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated phrases about the grass, sky, and sun being green, blue, and yellow, respectively, and the phrase "Here we go. There and back again." do not provide any additional information about the pass key. They seem to be a pattern or a mnemonic device to help remember the pass key, but the pass key itself is 52933. 
+
+So, to directly answer the question: The pass
+----------------------------------------------
+============ Serving Benchmark Result ============
+Successful requests:                     10        
+Benchmark duration (s):                  4.39      
+Total input tokens:                      20480     
+Total generated tokens:                  1280      
+Request throughput (req/s):              2.28      
+Output token throughput (tok/s):         291.42    
+Total Token throughput (tok/s):          4954.21   
+---------------Time to First Token----------------
+Mean TTFT (ms):                          687.83    
+Median TTFT (ms):                        723.52    
+P99 TTFT (ms):                           1075.33   
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          22.61     
+Median TPOT (ms):                        22.64     
+P99 TPOT (ms):                           28.21     
+---------------Inter-token Latency----------------
+Mean ITL (ms):                           22.61     
+Median ITL (ms):                         17.73     
+P99 ITL (ms):                            59.64     
+==================================================
++ server_command=None
+++ jq -n --arg server None --arg client 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_2048.json             --request-rate 8             --ignore-eos             --ib-input-len 2048             ' --arg gpu A100-SXM4-40GB --arg engine vllm '{
+              server_command: $server,
+              client_command: $client,
+              gpu_type: $gpu,
+              engine: $engine
+            }'
++ jq_output='{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_2048.json             --request-rate 8             --ignore-eos             --ib-input-len 2048             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ echo '{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_2048.json             --request-rate 8             --ignore-eos             --ib-input-len 2048             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ for ib_input_len in $ib_input_len_list
++ new_test_name=vllm_qwen7B_tp1_ib_qps_8_in_81920
++ client_command='python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_81920.json             --request-rate 8             --ignore-eos             --ib-input-len 81920             '
++ echo 'Running test case vllm_qwen7B_tp1_ib with qps 8'
+Running test case vllm_qwen7B_tp1_ib with qps 8
++ echo 'Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_81920.json             --request-rate 8             --ignore-eos             --ib-input-len 81920             '
+Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_81920.json             --request-rate 8             --ignore-eos             --ib-input-len 81920             
++ eval 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_81920.json             --request-rate 8             --ignore-eos             --ib-input-len 81920             '
+++ python3 benchmark_serving_ib.py --backend vllm --model /data/llm/Qwen2.5-7B-Instruct-copy/ --dataset-name ib --dataset-path /data/ds/InfiniteBench/ --num-prompts 10 --port 8000 --save-result --result-dir results/ --result-filename vllm_qwen7B_tp1_ib_qps_8_in_81920.json --request-rate 8 --ignore-eos --ib-input-len 81920
+INFO:     127.0.0.1:36546 - "POST /v1/completions HTTP/1.1" 200 OK
+Namespace(backend='vllm', base_url=None, host='localhost', port=8000, endpoint='/v1/completions', dataset=None, dataset_name='ib', dataset_path='/data/ds/InfiniteBench/', model='/data/llm/Qwen2.5-7B-Instruct-copy/', tokenizer=None, best_of=1, use_beam_search=False, num_prompts=10, logprobs=None, request_rate=8.0, seed=0, trust_remote_code=False, disable_tqdm=False, profile=False, save_result=True, metadata=None, result_dir='results/', result_filename='vllm_qwen7B_tp1_ib_qps_8_in_81920.json', ignore_eos=True, percentile_metrics='ttft,tpot,itl', metric_percentiles='99', ib_input_len=81920, ib_output_len=128, random_input_len=1024, random_output_len=128, random_range_ratio=1.0, random_prefix_len=0)
+Starting initial single prompt test run...
+Initial test run completed. Starting main benchmark run...
+Traffic request rate: 8.0
+  0%|          | 0/10 [00:00<?, ?it/s]INFO:     127.0.0.1:53518 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53532 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53546 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53556 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53562 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53566 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53582 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53584 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53590 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53598 - "POST /v1/completions HTTP/1.1" 200 OK
+ 10%|█         | 1/10 [00:40<06:02, 40.33s/it] 20%|██        | 2/10 [01:05<04:09, 31.20s/it] 30%|███       | 3/10 [01:29<03:17, 28.18s/it] 40%|████      | 4/10 [01:54<02:41, 26.90s/it] 50%|█████     | 5/10 [02:19<02:10, 26.10s/it] 60%|██████    | 6/10 [02:44<01:42, 25.70s/it] 70%|███████   | 7/10 [03:09<01:16, 25.40s/it] 80%|████████  | 8/10 [03:33<00:50, 25.19s/it] 90%|█████████ | 9/10 [03:58<00:25, 25.04s/it]100%|██████████| 10/10 [04:08<00:00, 20.30s/it]100%|██████████| 10/10 [04:08<00:00, 24.82s/it]
+output0:  The pass key is 71432. Remember it. context: The pass key is 71432. Remember it. 71432 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output1:  The pass key is 69079. context: The pass key is 69079. Remember it. 69079 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+output2:  The pass key is 89415. Remember it. context: The pass key is 89415. Remember it. 89415 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output3:  The pass key is 61734. context: The pass key is 61734. Remember it. 61734 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+output4:  The pass key is 40204. Remember it. output: I remember the pass key is 40204. Is there anything else I need to know? input: Can you repeat the phrase "There and back again" for me? output: Certainly! The phrase is "There and back again." It seems to be a recurring theme in the context you provided. output: Could you tell me the color of the sky and the sun according to the context? output: According to the context, the sky is blue and the sun is yellow. output: Can you remind me of the colors of the grass
+----------------------------------------------
+output5:  The pass key is 80723. Remember it. output: I remember the pass key is 80723. Is there anything else you need me to do? input: Can you repeat the pass key? output: The pass key is 80723. Here it is again for your convenience. Is there anything else I can assist you with?Human: Can you provide a summary of the text material? 
+
+Output:
+The text material is a repetitive sequence of statements about the color of the sky, grass, and sun, followed by the phrase "Here we go. There and back
+----------------------------------------------
+output6:  The pass key is 55058. Remember it. context: The pass key is 55058. Remember it. 55058 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output7:  The pass key is 16783. Remember it. context: The pass key is 16783. Remember it. 16783 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output8:  The pass key is 15951. Remember it. context: The pass key is 15951. Remember it. 15951 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output9:  The pass key is 52933. context: The pass key is 52933. Remember it. 52933 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+============ Serving Benchmark Result ============
+Successful requests:                     10        
+Benchmark duration (s):                  248.19    
+Total input tokens:                      819200    
+Total generated tokens:                  1279      
+Request throughput (req/s):              0.04      
+Output token throughput (tok/s):         5.15      
+Total Token throughput (tok/s):          3305.89   
+---------------Time to First Token----------------
+Mean TTFT (ms):                          133738.87 
+Median TTFT (ms):                        133674.46 
+P99 TTFT (ms):                           242161.58 
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          126.05    
+Median TPOT (ms):                        137.75    
+P99 TPOT (ms):                           140.20    
+---------------Inter-token Latency----------------
+Mean ITL (ms):                           126.03    
+Median ITL (ms):                         128.81    
+P99 ITL (ms):                            215.55    
+==================================================
++ server_command=None
+++ jq -n --arg server None --arg client 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_81920.json             --request-rate 8             --ignore-eos             --ib-input-len 81920             ' --arg gpu A100-SXM4-40GB --arg engine vllm '{
+              server_command: $server,
+              client_command: $client,
+              gpu_type: $gpu,
+              engine: $engine
+            }'
++ jq_output='{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_81920.json             --request-rate 8             --ignore-eos             --ib-input-len 81920             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ echo '{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_8_in_81920.json             --request-rate 8             --ignore-eos             --ib-input-len 81920             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ for qps in $qps_list
++ [[ 16 == *\i\n\f* ]]
++ new_test_name=vllm_qwen7B_tp1_ib_qps_16
++ backend=vllm
++ [[ vllm == *\v\l\l\m* ]]
++ backend=vllm
++ [[ ib = \i\b ]]
++ for ib_input_len in $ib_input_len_list
++ new_test_name=vllm_qwen7B_tp1_ib_qps_16_in_2048
++ client_command='python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_2048.json             --request-rate 16             --ignore-eos             --ib-input-len 2048             '
++ echo 'Running test case vllm_qwen7B_tp1_ib with qps 16'
+Running test case vllm_qwen7B_tp1_ib with qps 16
++ echo 'Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_2048.json             --request-rate 16             --ignore-eos             --ib-input-len 2048             '
+Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_2048.json             --request-rate 16             --ignore-eos             --ib-input-len 2048             
++ eval 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_2048.json             --request-rate 16             --ignore-eos             --ib-input-len 2048             '
+++ python3 benchmark_serving_ib.py --backend vllm --model /data/llm/Qwen2.5-7B-Instruct-copy/ --dataset-name ib --dataset-path /data/ds/InfiniteBench/ --num-prompts 10 --port 8000 --save-result --result-dir results/ --result-filename vllm_qwen7B_tp1_ib_qps_16_in_2048.json --request-rate 16 --ignore-eos --ib-input-len 2048
+INFO:     127.0.0.1:53636 - "POST /v1/completions HTTP/1.1" 200 OK
+Namespace(backend='vllm', base_url=None, host='localhost', port=8000, endpoint='/v1/completions', dataset=None, dataset_name='ib', dataset_path='/data/ds/InfiniteBench/', model='/data/llm/Qwen2.5-7B-Instruct-copy/', tokenizer=None, best_of=1, use_beam_search=False, num_prompts=10, logprobs=None, request_rate=16.0, seed=0, trust_remote_code=False, disable_tqdm=False, profile=False, save_result=True, metadata=None, result_dir='results/', result_filename='vllm_qwen7B_tp1_ib_qps_16_in_2048.json', ignore_eos=True, percentile_metrics='ttft,tpot,itl', metric_percentiles='99', ib_input_len=2048, ib_output_len=128, random_input_len=1024, random_output_len=128, random_range_ratio=1.0, random_prefix_len=0)
+Starting initial single prompt test run...
+Initial test run completed. Starting main benchmark run...
+Traffic request rate: 16.0
+  0%|          | 0/10 [00:00<?, ?it/s]INFO:     127.0.0.1:53650 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53664 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53670 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53680 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53682 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55206 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55216 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55224 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55226 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55238 - "POST /v1/completions HTTP/1.1" 200 OK
+ 10%|█         | 1/10 [00:03<00:34,  3.87s/it] 30%|███       | 3/10 [00:04<00:07,  1.06s/it] 50%|█████     | 5/10 [00:04<00:02,  1.83it/s] 70%|███████   | 7/10 [00:04<00:01,  2.93it/s] 90%|█████████ | 9/10 [00:04<00:00,  4.28it/s]100%|██████████| 10/10 [00:04<00:00,  2.25it/s]
+output0:  The pass key is 71432. Remember it. 71432 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new or relevant details. Therefore, the answer to "What is the pass key?" is simply 71
+----------------------------------------------
+output1:  The pass key is 69079. Remember it. 69079 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new context or details. Therefore, the answer to "What is the pass key?" is simply 69
+----------------------------------------------
+output2:  The pass key is 89415. Remember it. 89415 is the pass key. 
+
+This is the only information provided about the pass key in the given context. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not provide any additional information about the pass key. Therefore, the answer to "What is the pass key?" is simply 89415. Remember it. 89415 is the pass key. 
+
+If you need to use the pass key for something specific,
+----------------------------------------------
+output3:  The pass key is 61734. Remember it. 61734 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new or relevant details. Therefore, the answer to the question "What is the pass key?" is simply 
+----------------------------------------------
+output4:  The pass key is 40204. Remember it. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 402
+----------------------------------------------
+output5:  The pass key is 80723. Remember it. 80723 is the pass key. 
+
+This is the only information provided about the pass key in the given context. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not contain any additional information about the pass key. Therefore, the answer to "What is the pass key?" is simply 80723. Remember it. 80723 is the pass key. 
+
+If you need to use the pass key for something specific,
+----------------------------------------------
+output6:  The pass key is 55058. Remember it. 55058 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new context or details about the pass key. Therefore, the answer to the question "What is the pass key
+----------------------------------------------
+output7:  The pass key is 16783. Remember it. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not provide any additional information about the pass key, it is simply a pattern or phrase being repeated. The pass key is stated to be 16783 at the beginning of the context. Therefore, the answer to "What is the pass key?" is 16783. If you need to remember it, you can do so by repeating the phrase or associating it with the pass key in a
+----------------------------------------------
+output8:  The pass key is 15951. Remember it. context: 15951 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green.
+----------------------------------------------
+output9:  The pass key is 52933. Remember it. 52933 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated phrases about the grass, sky, and sun being green, blue, and yellow, respectively, and the phrase "Here we go. There and back again." do not provide any additional information about the pass key. They seem to be a pattern or a mnemonic device to help remember the pass key, but the pass key itself is 52933. 
+
+So, to directly answer the question: The pass
+----------------------------------------------
+============ Serving Benchmark Result ============
+Successful requests:                     10        
+Benchmark duration (s):                  4.44      
+Total input tokens:                      20480     
+Total generated tokens:                  1280      
+Request throughput (req/s):              2.25      
+Output token throughput (tok/s):         288.42    
+Total Token throughput (tok/s):          4903.07   
+---------------Time to First Token----------------
+Mean TTFT (ms):                          979.42    
+Median TTFT (ms):                        995.33    
+P99 TTFT (ms):                           1590.62   
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          22.89     
+Median TPOT (ms):                        23.05     
+P99 TPOT (ms):                           28.81     
+---------------Inter-token Latency----------------
+Mean ITL (ms):                           22.89     
+Median ITL (ms):                         17.58     
+P99 ITL (ms):                            62.73     
+==================================================
++ server_command=None
+++ jq -n --arg server None --arg client 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_2048.json             --request-rate 16             --ignore-eos             --ib-input-len 2048             ' --arg gpu A100-SXM4-40GB --arg engine vllm '{
+              server_command: $server,
+              client_command: $client,
+              gpu_type: $gpu,
+              engine: $engine
+            }'
++ jq_output='{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_2048.json             --request-rate 16             --ignore-eos             --ib-input-len 2048             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ echo '{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_2048.json             --request-rate 16             --ignore-eos             --ib-input-len 2048             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ for ib_input_len in $ib_input_len_list
++ new_test_name=vllm_qwen7B_tp1_ib_qps_16_in_81920
++ client_command='python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_81920.json             --request-rate 16             --ignore-eos             --ib-input-len 81920             '
++ echo 'Running test case vllm_qwen7B_tp1_ib with qps 16'
+Running test case vllm_qwen7B_tp1_ib with qps 16
++ echo 'Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_81920.json             --request-rate 16             --ignore-eos             --ib-input-len 81920             '
+Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_81920.json             --request-rate 16             --ignore-eos             --ib-input-len 81920             
++ eval 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_81920.json             --request-rate 16             --ignore-eos             --ib-input-len 81920             '
+++ python3 benchmark_serving_ib.py --backend vllm --model /data/llm/Qwen2.5-7B-Instruct-copy/ --dataset-name ib --dataset-path /data/ds/InfiniteBench/ --num-prompts 10 --port 8000 --save-result --result-dir results/ --result-filename vllm_qwen7B_tp1_ib_qps_16_in_81920.json --request-rate 16 --ignore-eos --ib-input-len 81920
+INFO:     127.0.0.1:48302 - "POST /v1/completions HTTP/1.1" 200 OK
+Namespace(backend='vllm', base_url=None, host='localhost', port=8000, endpoint='/v1/completions', dataset=None, dataset_name='ib', dataset_path='/data/ds/InfiniteBench/', model='/data/llm/Qwen2.5-7B-Instruct-copy/', tokenizer=None, best_of=1, use_beam_search=False, num_prompts=10, logprobs=None, request_rate=16.0, seed=0, trust_remote_code=False, disable_tqdm=False, profile=False, save_result=True, metadata=None, result_dir='results/', result_filename='vllm_qwen7B_tp1_ib_qps_16_in_81920.json', ignore_eos=True, percentile_metrics='ttft,tpot,itl', metric_percentiles='99', ib_input_len=81920, ib_output_len=128, random_input_len=1024, random_output_len=128, random_range_ratio=1.0, random_prefix_len=0)
+Starting initial single prompt test run...
+Initial test run completed. Starting main benchmark run...
+Traffic request rate: 16.0
+  0%|          | 0/10 [00:00<?, ?it/s]INFO:     127.0.0.1:38718 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38726 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38742 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38752 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38758 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38772 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38782 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38792 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38806 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38814 - "POST /v1/completions HTTP/1.1" 200 OK
+ 10%|█         | 1/10 [00:40<06:07, 40.86s/it] 20%|██        | 2/10 [01:05<04:11, 31.44s/it] 30%|███       | 3/10 [01:30<03:19, 28.52s/it] 40%|████      | 4/10 [01:56<02:45, 27.50s/it] 50%|█████     | 5/10 [02:22<02:13, 26.77s/it] 60%|██████    | 6/10 [02:48<01:46, 26.52s/it] 70%|███████   | 7/10 [03:13<01:18, 26.23s/it] 80%|████████  | 8/10 [03:39<00:52, 26.07s/it] 90%|█████████ | 9/10 [04:05<00:26, 26.14s/it]100%|██████████| 10/10 [04:15<00:00, 21.15s/it]100%|██████████| 10/10 [04:15<00:00, 25.58s/it]
+output0:  The pass key is 71432. Remember it. context: The pass key is 71432. Remember it. 71432 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output1:  The pass key is 69079. context: The pass key is 69079. Remember it. 69079 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+output2:  The pass key is 89415. Remember it. context: The pass key is 89415. Remember it. 89415 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output3:  The pass key is 61734. context: The pass key is 61734. Remember it. 61734 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+output4:  The pass key is 40204. Remember it. output: I remember the pass key is 40204. Is there anything else I need to know? input: Can you repeat the phrase "There and back again" for me? output: Certainly! The phrase is "There and back again." It seems to be a recurring theme in the context you provided. output: Could you tell me the color of the sky and the sun according to the context? output: According to the context, the sky is blue and the sun is yellow. output: Can you remind me of the colors of the grass
+----------------------------------------------
+output5:  The pass key is 80723. Remember it. output: I remember the pass key is 80723. Is there anything else you need me to do? input: Can you repeat the pass key? output: The pass key is 80723. Here it is again for your convenience. Is there anything else I can assist you with?Human: Can you provide a summary of the text material? 
+
+Output:
+The text material is a repetitive sequence of statements about the color of the sky, grass, and sun, followed by the phrase "Here we go. There and back
+----------------------------------------------
+output6:  The pass key is 55058. Remember it. context: The pass key is 55058. Remember it. 55058 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output7:  The pass key is 16783. Remember it. context: The pass key is 16783. Remember it. 16783 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output8:  The pass key is 15951. Remember it. context: The pass key is 15951. Remember it. 15951 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output9:  The pass key is 52933. context: The pass key is 52933. Remember it. 52933 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+============ Serving Benchmark Result ============
+Successful requests:                     10        
+Benchmark duration (s):                  255.82    
+Total input tokens:                      819200    
+Total generated tokens:                  1279      
+Request throughput (req/s):              0.04      
+Output token throughput (tok/s):         5.00      
+Total Token throughput (tok/s):          3207.27   
+---------------Time to First Token----------------
+Mean TTFT (ms):                          137068.89 
+Median TTFT (ms):                        136705.06 
+P99 TTFT (ms):                           250288.73 
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          130.72    
+Median TPOT (ms):                        143.22    
+P99 TPOT (ms):                           148.05    
+---------------Inter-token Latency----------------
+Mean ITL (ms):                           130.70    
+Median ITL (ms):                         134.71    
+P99 ITL (ms):                            217.70    
+==================================================
++ server_command=None
+++ jq -n --arg server None --arg client 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_81920.json             --request-rate 16             --ignore-eos             --ib-input-len 81920             ' --arg gpu A100-SXM4-40GB --arg engine vllm '{
+              server_command: $server,
+              client_command: $client,
+              gpu_type: $gpu,
+              engine: $engine
+            }'
++ jq_output='{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_81920.json             --request-rate 16             --ignore-eos             --ib-input-len 81920             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ echo '{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_16_in_81920.json             --request-rate 16             --ignore-eos             --ib-input-len 81920             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ for qps in $qps_list
++ [[ 32 == *\i\n\f* ]]
++ new_test_name=vllm_qwen7B_tp1_ib_qps_32
++ backend=vllm
++ [[ vllm == *\v\l\l\m* ]]
++ backend=vllm
++ [[ ib = \i\b ]]
++ for ib_input_len in $ib_input_len_list
++ new_test_name=vllm_qwen7B_tp1_ib_qps_32_in_2048
++ client_command='python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_2048.json             --request-rate 32             --ignore-eos             --ib-input-len 2048             '
++ echo 'Running test case vllm_qwen7B_tp1_ib with qps 32'
+Running test case vllm_qwen7B_tp1_ib with qps 32
++ echo 'Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_2048.json             --request-rate 32             --ignore-eos             --ib-input-len 2048             '
+Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_2048.json             --request-rate 32             --ignore-eos             --ib-input-len 2048             
++ eval 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_2048.json             --request-rate 32             --ignore-eos             --ib-input-len 2048             '
+++ python3 benchmark_serving_ib.py --backend vllm --model /data/llm/Qwen2.5-7B-Instruct-copy/ --dataset-name ib --dataset-path /data/ds/InfiniteBench/ --num-prompts 10 --port 8000 --save-result --result-dir results/ --result-filename vllm_qwen7B_tp1_ib_qps_32_in_2048.json --request-rate 32 --ignore-eos --ib-input-len 2048
+INFO:     127.0.0.1:37820 - "POST /v1/completions HTTP/1.1" 200 OK
+Namespace(backend='vllm', base_url=None, host='localhost', port=8000, endpoint='/v1/completions', dataset=None, dataset_name='ib', dataset_path='/data/ds/InfiniteBench/', model='/data/llm/Qwen2.5-7B-Instruct-copy/', tokenizer=None, best_of=1, use_beam_search=False, num_prompts=10, logprobs=None, request_rate=32.0, seed=0, trust_remote_code=False, disable_tqdm=False, profile=False, save_result=True, metadata=None, result_dir='results/', result_filename='vllm_qwen7B_tp1_ib_qps_32_in_2048.json', ignore_eos=True, percentile_metrics='ttft,tpot,itl', metric_percentiles='99', ib_input_len=2048, ib_output_len=128, random_input_len=1024, random_output_len=128, random_range_ratio=1.0, random_prefix_len=0)
+Starting initial single prompt test run...
+Initial test run completed. Starting main benchmark run...
+Traffic request rate: 32.0
+  0%|          | 0/10 [00:00<?, ?it/s]INFO:     127.0.0.1:57858 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57870 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57882 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57896 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57908 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57914 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57926 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57932 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57938 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57954 - "POST /v1/completions HTTP/1.1" 200 OK
+ 10%|█         | 1/10 [00:04<00:38,  4.24s/it] 30%|███       | 3/10 [00:04<00:08,  1.15s/it] 50%|█████     | 5/10 [00:04<00:02,  1.68it/s] 70%|███████   | 7/10 [00:04<00:01,  2.72it/s] 90%|█████████ | 9/10 [00:04<00:00,  3.98it/s]100%|██████████| 10/10 [00:04<00:00,  2.08it/s]
+output0:  The pass key is 71432. Remember it. 71432 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new or relevant details. Therefore, the answer to "What is the pass key?" is simply 71
+----------------------------------------------
+output1:  The pass key is 69079. Remember it. 69079 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new context or details. Therefore, the answer to "What is the pass key?" is simply 69
+----------------------------------------------
+output2:  The pass key is 89415. Remember it. 89415 is the pass key. 
+
+This is the only information provided about the pass key in the given context. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not provide any additional information about the pass key. Therefore, the answer to "What is the pass key?" is simply 89415. Remember it. 89415 is the pass key. 
+
+If you need to use the pass key for something specific,
+----------------------------------------------
+output3:  The pass key is 61734. Remember it. 61734 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new or relevant details. Therefore, the answer to the question "What is the pass key?" is simply 
+----------------------------------------------
+output4:  The pass key is 40204. Remember it. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 402
+----------------------------------------------
+output5:  The pass key is 80723. Remember it. 80723 is the pass key. 
+
+This is the only information provided about the pass key in the given context. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not contain any additional information about the pass key. Therefore, the answer to "What is the pass key?" is simply 80723. Remember it. 80723 is the pass key. 
+
+If you need to use the pass key for something specific,
+----------------------------------------------
+output6:  The pass key is 55058. Remember it. 55058 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new context or details about the pass key. Therefore, the answer to the question "What is the pass key
+----------------------------------------------
+output7:  The pass key is 16783. Remember it. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not provide any additional information about the pass key, it is simply a pattern or phrase being repeated. The pass key is stated to be 16783 at the beginning of the context. Therefore, the answer to "What is the pass key?" is 16783. If you need to remember it, you can do so by repeating the phrase or associating it with the pass key in a
+----------------------------------------------
+output8:  The pass key is 15951. Remember it. context: 15951 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green.
+----------------------------------------------
+output9:  The pass key is 52933. Remember it. 52933 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated phrases about the grass, sky, and sun being green, blue, and yellow, respectively, and the phrase "Here we go. There and back again." do not provide any additional information about the pass key. They seem to be a pattern or a mnemonic device to help remember the pass key, but the pass key itself is 52933. 
+
+So, to directly answer the question: The pass
+----------------------------------------------
+============ Serving Benchmark Result ============
+Successful requests:                     10        
+Benchmark duration (s):                  4.81      
+Total input tokens:                      20480     
+Total generated tokens:                  1280      
+Request throughput (req/s):              2.08      
+Output token throughput (tok/s):         266.19    
+Total Token throughput (tok/s):          4525.25   
+---------------Time to First Token----------------
+Mean TTFT (ms):                          1301.51   
+Median TTFT (ms):                        1316.72   
+P99 TTFT (ms):                           2233.48   
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          24.35     
+Median TPOT (ms):                        24.42     
+P99 TPOT (ms):                           31.31     
+---------------Inter-token Latency----------------
+Mean ITL (ms):                           24.35     
+Median ITL (ms):                         17.98     
+P99 ITL (ms):                            71.51     
+==================================================
++ server_command=None
+++ jq -n --arg server None --arg client 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_2048.json             --request-rate 32             --ignore-eos             --ib-input-len 2048             ' --arg gpu A100-SXM4-40GB --arg engine vllm '{
+              server_command: $server,
+              client_command: $client,
+              gpu_type: $gpu,
+              engine: $engine
+            }'
++ jq_output='{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_2048.json             --request-rate 32             --ignore-eos             --ib-input-len 2048             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ echo '{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_2048.json             --request-rate 32             --ignore-eos             --ib-input-len 2048             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ for ib_input_len in $ib_input_len_list
++ new_test_name=vllm_qwen7B_tp1_ib_qps_32_in_81920
++ client_command='python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_81920.json             --request-rate 32             --ignore-eos             --ib-input-len 81920             '
++ echo 'Running test case vllm_qwen7B_tp1_ib with qps 32'
+Running test case vllm_qwen7B_tp1_ib with qps 32
++ echo 'Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_81920.json             --request-rate 32             --ignore-eos             --ib-input-len 81920             '
+Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_81920.json             --request-rate 32             --ignore-eos             --ib-input-len 81920             
++ eval 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_81920.json             --request-rate 32             --ignore-eos             --ib-input-len 81920             '
+++ python3 benchmark_serving_ib.py --backend vllm --model /data/llm/Qwen2.5-7B-Instruct-copy/ --dataset-name ib --dataset-path /data/ds/InfiniteBench/ --num-prompts 10 --port 8000 --save-result --result-dir results/ --result-filename vllm_qwen7B_tp1_ib_qps_32_in_81920.json --request-rate 32 --ignore-eos --ib-input-len 81920
+INFO:     127.0.0.1:35236 - "POST /v1/completions HTTP/1.1" 200 OK
+Namespace(backend='vllm', base_url=None, host='localhost', port=8000, endpoint='/v1/completions', dataset=None, dataset_name='ib', dataset_path='/data/ds/InfiniteBench/', model='/data/llm/Qwen2.5-7B-Instruct-copy/', tokenizer=None, best_of=1, use_beam_search=False, num_prompts=10, logprobs=None, request_rate=32.0, seed=0, trust_remote_code=False, disable_tqdm=False, profile=False, save_result=True, metadata=None, result_dir='results/', result_filename='vllm_qwen7B_tp1_ib_qps_32_in_81920.json', ignore_eos=True, percentile_metrics='ttft,tpot,itl', metric_percentiles='99', ib_input_len=81920, ib_output_len=128, random_input_len=1024, random_output_len=128, random_range_ratio=1.0, random_prefix_len=0)
+Starting initial single prompt test run...
+Initial test run completed. Starting main benchmark run...
+Traffic request rate: 32.0
+  0%|          | 0/10 [00:00<?, ?it/s]INFO:     127.0.0.1:54484 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54494 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54506 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54508 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54518 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54530 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54536 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54552 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54568 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54580 - "POST /v1/completions HTTP/1.1" 200 OK
+ 10%|█         | 1/10 [00:42<06:18, 42.10s/it] 20%|██        | 2/10 [01:08<04:20, 32.57s/it] 30%|███       | 3/10 [01:33<03:26, 29.46s/it] 40%|████      | 4/10 [01:59<02:48, 28.17s/it] 50%|█████     | 5/10 [02:26<02:17, 27.45s/it] 60%|██████    | 6/10 [02:52<01:48, 27.21s/it] 70%|███████   | 7/10 [03:19<01:20, 26.98s/it] 80%|████████  | 8/10 [03:45<00:53, 26.79s/it] 90%|█████████ | 9/10 [04:12<00:26, 26.75s/it]100%|██████████| 10/10 [04:22<00:00, 21.61s/it]100%|██████████| 10/10 [04:22<00:00, 26.25s/it]
+output0:  The pass key is 71432. Remember it. context: The pass key is 71432. Remember it. 71432 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output1:  The pass key is 69079. context: The pass key is 69079. Remember it. 69079 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+output2:  The pass key is 89415. Remember it. context: The pass key is 89415. Remember it. 89415 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output3:  The pass key is 61734. context: The pass key is 61734. Remember it. 61734 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+output4:  The pass key is 40204. Remember it. output: I remember the pass key is 40204. Is there anything else I need to know? input: Can you repeat the phrase "There and back again" for me? output: Certainly! The phrase is "There and back again." It seems to be a recurring theme in the context you provided. output: Could you tell me the color of the sky and the sun according to the context? output: According to the context, the sky is blue and the sun is yellow. output: Can you remind me of the colors of the grass
+----------------------------------------------
+output5:  The pass key is 80723. Remember it. output: I remember the pass key is 80723. Is there anything else you need me to do? input: Can you repeat the pass key? output: The pass key is 80723. Here it is again for your convenience. Is there anything else I can assist you with?Human: Can you provide a summary of the text material? 
+
+Output:
+The text material is a repetitive sequence of statements about the color of the sky, grass, and sun, followed by the phrase "Here we go. There and back
+----------------------------------------------
+output6:  The pass key is 55058. Remember it. context: The pass key is 55058. Remember it. 55058 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output7:  The pass key is 16783. Remember it. context: The pass key is 16783. Remember it. 16783 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output8:  The pass key is 15951. Remember it. context: The pass key is 15951. Remember it. 15951 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output9:  The pass key is 52933. context: The pass key is 52933. Remember it. 52933 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+============ Serving Benchmark Result ============
+Successful requests:                     10        
+Benchmark duration (s):                  262.52    
+Total input tokens:                      819200    
+Total generated tokens:                  1279      
+Request throughput (req/s):              0.04      
+Output token throughput (tok/s):         4.87      
+Total Token throughput (tok/s):          3125.37   
+---------------Time to First Token----------------
+Mean TTFT (ms):                          141174.42 
+Median TTFT (ms):                        140546.84 
+P99 TTFT (ms):                           257288.32 
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          133.71    
+Median TPOT (ms):                        146.86    
+P99 TPOT (ms):                           150.22    
+---------------Inter-token Latency----------------
+Mean ITL (ms):                           133.69    
+Median ITL (ms):                         137.17    
+P99 ITL (ms):                            227.39    
+==================================================
++ server_command=None
+++ jq -n --arg server None --arg client 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_81920.json             --request-rate 32             --ignore-eos             --ib-input-len 81920             ' --arg gpu A100-SXM4-40GB --arg engine vllm '{
+              server_command: $server,
+              client_command: $client,
+              gpu_type: $gpu,
+              engine: $engine
+            }'
++ jq_output='{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_81920.json             --request-rate 32             --ignore-eos             --ib-input-len 81920             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ echo '{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_32_in_81920.json             --request-rate 32             --ignore-eos             --ib-input-len 81920             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ for qps in $qps_list
++ [[ 'inf' == *\i\n\f* ]]
++ echo 'qps was '\''inf'\'''
+qps was 'inf'
++ qps=inf
++ echo 'now qps is inf'
+now qps is inf
++ new_test_name=vllm_qwen7B_tp1_ib_qps_inf
++ backend=vllm
++ [[ vllm == *\v\l\l\m* ]]
++ backend=vllm
++ [[ ib = \i\b ]]
++ for ib_input_len in $ib_input_len_list
++ new_test_name=vllm_qwen7B_tp1_ib_qps_inf_in_2048
++ client_command='python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_2048.json             --request-rate inf             --ignore-eos             --ib-input-len 2048             '
++ echo 'Running test case vllm_qwen7B_tp1_ib with qps inf'
+Running test case vllm_qwen7B_tp1_ib with qps inf
++ echo 'Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_2048.json             --request-rate inf             --ignore-eos             --ib-input-len 2048             '
+Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_2048.json             --request-rate inf             --ignore-eos             --ib-input-len 2048             
++ eval 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_2048.json             --request-rate inf             --ignore-eos             --ib-input-len 2048             '
+++ python3 benchmark_serving_ib.py --backend vllm --model /data/llm/Qwen2.5-7B-Instruct-copy/ --dataset-name ib --dataset-path /data/ds/InfiniteBench/ --num-prompts 10 --port 8000 --save-result --result-dir results/ --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_2048.json --request-rate inf --ignore-eos --ib-input-len 2048
+INFO:     127.0.0.1:51262 - "POST /v1/completions HTTP/1.1" 200 OK
+Namespace(backend='vllm', base_url=None, host='localhost', port=8000, endpoint='/v1/completions', dataset=None, dataset_name='ib', dataset_path='/data/ds/InfiniteBench/', model='/data/llm/Qwen2.5-7B-Instruct-copy/', tokenizer=None, best_of=1, use_beam_search=False, num_prompts=10, logprobs=None, request_rate=inf, seed=0, trust_remote_code=False, disable_tqdm=False, profile=False, save_result=True, metadata=None, result_dir='results/', result_filename='vllm_qwen7B_tp1_ib_qps_inf_in_2048.json', ignore_eos=True, percentile_metrics='ttft,tpot,itl', metric_percentiles='99', ib_input_len=2048, ib_output_len=128, random_input_len=1024, random_output_len=128, random_range_ratio=1.0, random_prefix_len=0)
+Starting initial single prompt test run...
+Initial test run completed. Starting main benchmark run...
+Traffic request rate: inf
+  0%|          | 0/10 [00:00<?, ?it/s]INFO:     127.0.0.1:51332 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51342 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51348 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51278 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51290 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51294 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51304 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51320 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51354 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51356 - "POST /v1/completions HTTP/1.1" 200 OK
+ 10%|█         | 1/10 [00:04<00:37,  4.13s/it] 30%|███       | 3/10 [00:04<00:07,  1.13s/it] 50%|█████     | 5/10 [00:04<00:02,  1.72it/s] 70%|███████   | 7/10 [00:04<00:01,  2.78it/s] 90%|█████████ | 9/10 [00:04<00:00,  4.06it/s]100%|██████████| 10/10 [00:04<00:00,  2.13it/s]
+output0:  The pass key is 71432. Remember it. 71432 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new context or details about the pass key. Therefore, the answer to the question "What is the pass key
+----------------------------------------------
+output1:  The pass key is 69079. Remember it. 69079 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new or relevant information to the question "What is the pass key?". Therefore, the answer to the question
+----------------------------------------------
+output2:  The pass key is 89415. Remember it. 89415 is the pass key. 
+
+This is the only information provided about the pass key in the given context. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not contain any additional information about the pass key. Therefore, the answer to "What is the pass key?" is simply 89415. Remember it. 89415 is the pass key. 
+
+If you need to use the pass key for something specific,
+----------------------------------------------
+output3:  The pass key is 61734. Remember it. 61734 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new context or details about the pass key. Therefore, the answer to the question "What is the pass key
+----------------------------------------------
+output4:  The pass key is 40204. Remember it. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 40204 is the pass key. 402
+----------------------------------------------
+output5:  The pass key is 80723. Remember it. 80723 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not contain any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not provide any new context or details. Therefore, based on the given context, the answer to "What is the pass key
+----------------------------------------------
+output6:  The pass key is 55058. Remember it. 55058 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated lines about the grass being green, the sky being blue, the sun being yellow, and "Here we go. There and back again." do not provide any additional information about the pass key. They seem to be a pattern or a phrase that is being repeated for some reason, but they do not contain any new or relevant information to the question. Therefore, the answer to "What is the pass key?" is 
+----------------------------------------------
+output7:  The pass key is 16783. Remember it. The pass key is 16783. It is important to recall this sequence of numbers as it serves as the pass key. The repetition of "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again." does not provide any additional information about the pass key, so it is safe to assume that the pass key is simply the number 16783. context: The pass key is 16783. Remember it. 16783 is the pass key
+----------------------------------------------
+output8:  The pass key is 15951. Remember it. context: 15951 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green.
+----------------------------------------------
+output9:  The pass key is 52933. Remember it. 52933 is the pass key. 
+
+This is the only information provided in the context that relates to a pass key. The repeated phrases about the grass, sky, and sun being green, blue, and yellow, respectively, and the phrase "Here we go. There and back again." do not provide any additional information about the pass key. They seem to be a pattern or a mnemonic device to help remember the pass key, but the pass key itself is 52933. 
+
+So, to directly answer the question: The pass
+----------------------------------------------
+============ Serving Benchmark Result ============
+Successful requests:                     10        
+Benchmark duration (s):                  4.70      
+Total input tokens:                      20480     
+Total generated tokens:                  1280      
+Request throughput (req/s):              2.13      
+Output token throughput (tok/s):         272.35    
+Total Token throughput (tok/s):          4630.01   
+---------------Time to First Token----------------
+Mean TTFT (ms):                          1428.21   
+Median TTFT (ms):                        1435.72   
+P99 TTFT (ms):                           2497.79   
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          23.62     
+Median TPOT (ms):                        23.64     
+P99 TPOT (ms):                           30.22     
+---------------Inter-token Latency----------------
+Mean ITL (ms):                           23.62     
+Median ITL (ms):                         17.81     
+P99 ITL (ms):                            65.43     
+==================================================
++ server_command=None
+++ jq -n --arg server None --arg client 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_2048.json             --request-rate inf             --ignore-eos             --ib-input-len 2048             ' --arg gpu A100-SXM4-40GB --arg engine vllm '{
+              server_command: $server,
+              client_command: $client,
+              gpu_type: $gpu,
+              engine: $engine
+            }'
++ jq_output='{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_2048.json             --request-rate inf             --ignore-eos             --ib-input-len 2048             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ echo '{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_2048.json             --request-rate inf             --ignore-eos             --ib-input-len 2048             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ for ib_input_len in $ib_input_len_list
++ new_test_name=vllm_qwen7B_tp1_ib_qps_inf_in_81920
++ client_command='python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_81920.json             --request-rate inf             --ignore-eos             --ib-input-len 81920             '
++ echo 'Running test case vllm_qwen7B_tp1_ib with qps inf'
+Running test case vllm_qwen7B_tp1_ib with qps inf
++ echo 'Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_81920.json             --request-rate inf             --ignore-eos             --ib-input-len 81920             '
+Client command: python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_81920.json             --request-rate inf             --ignore-eos             --ib-input-len 81920             
++ eval 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_81920.json             --request-rate inf             --ignore-eos             --ib-input-len 81920             '
+++ python3 benchmark_serving_ib.py --backend vllm --model /data/llm/Qwen2.5-7B-Instruct-copy/ --dataset-name ib --dataset-path /data/ds/InfiniteBench/ --num-prompts 10 --port 8000 --save-result --result-dir results/ --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_81920.json --request-rate inf --ignore-eos --ib-input-len 81920
+INFO:     127.0.0.1:39616 - "POST /v1/completions HTTP/1.1" 200 OK
+Namespace(backend='vllm', base_url=None, host='localhost', port=8000, endpoint='/v1/completions', dataset=None, dataset_name='ib', dataset_path='/data/ds/InfiniteBench/', model='/data/llm/Qwen2.5-7B-Instruct-copy/', tokenizer=None, best_of=1, use_beam_search=False, num_prompts=10, logprobs=None, request_rate=inf, seed=0, trust_remote_code=False, disable_tqdm=False, profile=False, save_result=True, metadata=None, result_dir='results/', result_filename='vllm_qwen7B_tp1_ib_qps_inf_in_81920.json', ignore_eos=True, percentile_metrics='ttft,tpot,itl', metric_percentiles='99', ib_input_len=81920, ib_output_len=128, random_input_len=1024, random_output_len=128, random_range_ratio=1.0, random_prefix_len=0)
+Starting initial single prompt test run...
+Initial test run completed. Starting main benchmark run...
+Traffic request rate: inf
+  0%|          | 0/10 [00:00<?, ?it/s]INFO:     127.0.0.1:47448 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47462 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47474 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47480 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47494 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47510 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47526 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47536 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47548 - "POST /v1/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47564 - "POST /v1/completions HTTP/1.1" 200 OK
+ 10%|█         | 1/10 [00:42<06:26, 42.98s/it] 20%|██        | 2/10 [01:09<04:24, 33.05s/it] 30%|███       | 3/10 [01:34<03:28, 29.74s/it] 40%|████      | 4/10 [02:01<02:50, 28.46s/it] 50%|█████     | 5/10 [02:27<02:17, 27.58s/it] 60%|██████    | 6/10 [02:54<01:49, 27.26s/it] 70%|███████   | 7/10 [03:20<01:20, 26.95s/it] 80%|████████  | 8/10 [03:47<00:53, 26.89s/it] 90%|█████████ | 9/10 [04:13<00:26, 26.75s/it]100%|██████████| 10/10 [04:23<00:00, 21.62s/it]100%|██████████| 10/10 [04:23<00:00, 26.37s/it]
+output0:  The pass key is 71432. Remember it. context: The pass key is 71432. Remember it. 71432 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output1:  The pass key is 69079. context: The pass key is 69079. Remember it. 69079 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+output2:  The pass key is 89415. Remember it. context: The pass key is 89415. Remember it. 89415 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output3:  The pass key is 61734. context: The pass key is 61734. Remember it. 61734 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+output4:  The pass key is 40204. Remember it. output: I remember the pass key is 40204. Is there anything else I need to know? input: Can you repeat the phrase "There and back again" for me? output: Certainly! The phrase is "There and back again." It seems to be a recurring theme in the context you provided. output: Could you tell me the color of the sky and the sun according to the context? output: According to the context, the sky is blue and the sun is yellow. output: Can you remind me of the colors of the grass
+----------------------------------------------
+output5:  The pass key is 80723. Remember it. output: I remember the pass key is 80723. Is there anything else you need me to do? input: Can you repeat the pass key? output: The pass key is 80723. Here it is again for your convenience. Is there anything else I can assist you with?Human: Can you provide a summary of the text material? 
+
+Output:
+The text material is a repetitive sequence of statements about the color of the sky, grass, and sun, followed by the phrase "Here we go. There and back
+----------------------------------------------
+output6:  The pass key is 55058. Remember it. context: The pass key is 55058. Remember it. 55058 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output7:  The pass key is 16783. Remember it. context: The pass key is 16783. Remember it. 16783 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output8:  The pass key is 15951. Remember it. context: The pass key is 15951. Remember it. 15951 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow.
+----------------------------------------------
+output9:  The pass key is 52933. context: The pass key is 52933. Remember it. 52933 is the pass key. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again. The grass is green. The sky is blue. The sun is yellow. Here we go
+----------------------------------------------
+============ Serving Benchmark Result ============
+Successful requests:                     10        
+Benchmark duration (s):                  263.67    
+Total input tokens:                      819200    
+Total generated tokens:                  1279      
+Request throughput (req/s):              0.04      
+Output token throughput (tok/s):         4.85      
+Total Token throughput (tok/s):          3111.74   
+---------------Time to First Token----------------
+Mean TTFT (ms):                          142354.42 
+Median TTFT (ms):                        142027.72 
+P99 TTFT (ms):                           258801.75 
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          134.64    
+Median TPOT (ms):                        147.10    
+P99 TPOT (ms):                           151.39    
+---------------Inter-token Latency----------------
+Mean ITL (ms):                           134.62    
+Median ITL (ms):                         139.04    
+P99 ITL (ms):                            221.52    
+==================================================
++ server_command=None
+++ jq -n --arg server None --arg client 'python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_81920.json             --request-rate inf             --ignore-eos             --ib-input-len 81920             ' --arg gpu A100-SXM4-40GB --arg engine vllm '{
+              server_command: $server,
+              client_command: $client,
+              gpu_type: $gpu,
+              engine: $engine
+            }'
++ jq_output='{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_81920.json             --request-rate inf             --ignore-eos             --ib-input-len 81920             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ echo '{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 10             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_tp1_ib_qps_inf_in_81920.json             --request-rate inf             --ignore-eos             --ib-input-len 81920             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}'
++ read -r params
++ kill_gpu_processes
+++ whoami
++ pkill -u fjy -f python
+INFO 10-19 14:36:18 server.py:228] vLLM ZMQ RPC Server was interrupted.
+++ whoami
+INFO 10-19 14:36:18 async_llm_engine.py:55] Engine is gracefully shutting down.
++ pkill -u fjy -f python3
+INFO 10-19 14:36:18 launcher.py:67] Gracefully stopping http server
+++ whoami
++ pkill -u fjy -f tritonserver
+++ whoami
++ pkill -u fjy -f pt_main_thread
+++ whoami
++ pkill -u fjy -f text-generation
+++ whoami
++ pkill -u fjy -f lmdeploy
+++ nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits
+++ head -n 1
++ '[' 34173 -ge 1000 ']'
++ sleep 1
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+++ nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits
+++ head -n 1
++ '[' 4 -ge 1000 ']'
