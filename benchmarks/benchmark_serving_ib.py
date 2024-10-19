@@ -13,7 +13,7 @@ On the client side, run:
     python benchmarks/benchmark_serving.py \
         --backend <backend> \
         --model <your_model> \
-        --dataset-name sharegpt \
+        --dataset-name ib \
         --dataset-path <path to dataset> \
         --request-rate <request_rate> \ # By default <request_rate> is inf
         --num-prompts <num_prompts> # By default <num_prompts> is 1000
@@ -78,50 +78,6 @@ class BenchmarkMetrics:
     median_e2el_ms: float
     std_e2el_ms: float
     percentiles_e2el_ms: List[Tuple[float, float]]
-
-
-def sample_sharegpt_requests(
-    dataset_path: str,
-    num_requests: int,
-    tokenizer: PreTrainedTokenizerBase,
-    fixed_output_len: Optional[int] = None,
-) -> List[Tuple[str, int, int, None]]:
-    # Load the dataset.
-    with open(dataset_path, encoding='utf-8') as f:
-        dataset = json.load(f)
-    # Filter out the conversations with less than 2 turns.
-    dataset = [data for data in dataset if len(data["conversations"]) >= 2]
-    # Only keep the first two turns of each conversation.
-    dataset = [(data["conversations"][0]["value"],
-                data["conversations"][1]["value"]) for data in dataset]
-
-    # Shuffle the dataset.
-    random.shuffle(dataset)
-
-    # Filter out sequences that are too long or too short
-    filtered_dataset: List[Tuple[str, int, int]] = []
-    for i in range(len(dataset)):
-        if len(filtered_dataset) == num_requests:
-            break
-
-        # Tokenize the prompts and completions.
-        prompt = dataset[i][0]
-        prompt_token_ids = tokenizer(prompt).input_ids
-        completion = dataset[i][1]
-        completion_token_ids = tokenizer(completion).input_ids
-        prompt_len = len(prompt_token_ids)
-        output_len = len(completion_token_ids
-                         ) if fixed_output_len is None else fixed_output_len
-        if prompt_len < 4 or (fixed_output_len is None and output_len < 4):
-            # Prune too short sequences.
-            continue
-        if prompt_len > 1024 or prompt_len + output_len > 2048:
-            # Prune too long sequences.
-            continue
-        print("prompt" + str(i) + ": " + prompt)
-        filtered_dataset.append((prompt, prompt_len, output_len, None))
-
-    return filtered_dataset
 
 
 def sample_infinitebench_requests(
@@ -523,19 +479,12 @@ def main(args: argparse.Namespace):
             "release. Please use '--dataset-name' and "
             "'--dataset-path' in the future runs.",
             stacklevel=2)
-        input_requests = sample_sharegpt_requests(
+        input_requests = sample_infinitebench_requests(
+            input_len=args.ib_input_len,
             dataset_path=args.dataset,
             num_requests=args.num_prompts,
             tokenizer=tokenizer,
-            fixed_output_len=args.sharegpt_output_len,
-        )
-
-    elif args.dataset_name == "sharegpt":
-        input_requests = sample_sharegpt_requests(
-            dataset_path=args.dataset_path,
-            num_requests=args.num_prompts,
-            tokenizer=tokenizer,
-            fixed_output_len=args.sharegpt_output_len,
+            fixed_output_len=args.ib_output_len,
         )
 
     elif args.dataset_name == "ib":
@@ -655,15 +604,15 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dataset-name",
         type=str,
-        default="sharegpt",
-        choices=["sharegpt", "random", "ib"],
+        default="ib",
+        choices=["random", "ib"],
         help="Name of the dataset to benchmark on.",
     )
     parser.add_argument(
         "--dataset-path",
         type=str,
         default=None,
-        help="Path to the sharegpt/sonnet/infinite bench dataset. "
+        help="Path to the infinite bench dataset. "
         "Or the huggingface dataset ID if using HF dataset.")
     parser.add_argument(
         "--model",
@@ -790,16 +739,8 @@ if __name__ == "__main__":
     infintebench_group.add_argument(
         "--ib-output-len",
         type=int,
-        default=None,
+        default=128,
         help="Number of output tokens per request.")
-
-    sharegpt_group = parser.add_argument_group("sharegpt dataset options")
-    sharegpt_group.add_argument(
-        "--sharegpt-output-len",
-        type=int,
-        default=None,
-        help="Output length for each request. Overrides the output length "
-        "from the ShareGPT dataset.")
 
     random_group = parser.add_argument_group("random dataset options")
     random_group.add_argument(

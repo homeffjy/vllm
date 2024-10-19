@@ -164,6 +164,8 @@ run_serving_tests() {
     port=$(echo "$common_params" | jq -r '.port')
     num_prompts=$(echo "$common_params" | jq -r '.num_prompts')
     reuse_server=$(echo "$common_params" | jq -r '.reuse_server')
+    ib_input_len_list=$(echo "$common_params" | jq -r '.ib_input_len_list')
+    ib_input_len_list=$(echo $ib_input_len_list | jq -r '.[]')
 
     # get client and server arguments
     server_params=$(echo "$params" | jq -r ".${CURRENT_LLM_SERVING_ENGINE}_server_parameters")
@@ -223,67 +225,55 @@ run_serving_tests() {
         backend="vllm"
       fi
 
-      if [[ "$dataset_name" = "sharegpt" ]]; then
+      if [[ "$dataset_name" = "ib" ]]; then
+ 
+        for ib_input_len in $ib_input_len_list; do 
+ 
+          new_test_name=$test_name"_qps_"$qps"_in_"$ib_input_len
+ 
+          client_command="python3 benchmark_serving_ib.py \
+            --backend $backend \
+            --model $model \
+            --dataset-name $dataset_name \
+            --dataset-path $dataset_path \
+            --num-prompts $num_prompts \
+            --port $port \
+            --save-result \
+            --result-dir $RESULTS_FOLDER \
+            --result-filename ${new_test_name}.json \
+            --request-rate $qps \
+            --ignore-eos \
+            --ib-input-len $ib_input_len \
+            $client_args"
+          
+          echo "Running test case $test_name with qps $qps"
+          echo "Client command: $client_command"
 
-        client_command="python3 benchmark_serving_ib.py \
-          --backend $backend \
-          --model $model \
-          --dataset-name $dataset_name \
-          --dataset-path $dataset_path \
-          --num-prompts $num_prompts \
-          --port $port \
-          --save-result \
-          --result-dir $RESULTS_FOLDER \
-          --result-filename ${new_test_name}.json \
-          --request-rate $qps \
-          --ignore-eos \
-          $client_args"
+          eval "$client_command"
 
-      elif [[ "$dataset_name" = "ib" ]]; then
+          server_command="None"
 
-        client_command="python3 benchmark_serving_ib.py \
-          --backend $backend \
-          --model $model \
-          --dataset-name $dataset_name \
-          --dataset-path $dataset_path \
-          --num-prompts $num_prompts \
-          --port $port \
-          --save-result \
-          --result-dir $RESULTS_FOLDER \
-          --result-filename ${new_test_name}.json \
-          --request-rate $qps \
-          --ignore-eos \
-          $client_args"
+          # record the benchmarking commands
+          jq_output=$(jq -n \
+            --arg server "$server_command" \
+            --arg client "$client_command" \
+            --arg gpu "$gpu_type" \
+            --arg engine "$CURRENT_LLM_SERVING_ENGINE" \
+            '{
+              server_command: $server,
+              client_command: $client,
+              gpu_type: $gpu,
+              engine: $engine
+            }')
+          echo "$jq_output" >"$RESULTS_FOLDER/${new_test_name}.commands"
+        done
 
       else
   
-        echo "The dataset name must be either 'sharegpt' or 'ib' (InfiniteBench). Got $dataset_name."
+        echo "The dataset name must be 'ib' (InfiniteBench). Got $dataset_name."
         exit 1
 
       fi
-
-        
-
-      echo "Running test case $test_name with qps $qps"
-      echo "Client command: $client_command"
-
-      eval "$client_command"
-
-      server_command="None"
-
-      # record the benchmarking commands
-      jq_output=$(jq -n \
-        --arg server "$server_command" \
-        --arg client "$client_command" \
-        --arg gpu "$gpu_type" \
-        --arg engine "$CURRENT_LLM_SERVING_ENGINE" \
-        '{
-          server_command: $server,
-          client_command: $client,
-          gpu_type: $gpu,
-          engine: $engine
-        }')
-      echo "$jq_output" >"$RESULTS_FOLDER/${new_test_name}.commands"
 
     done
 

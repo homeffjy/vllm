@@ -3,19 +3,19 @@
         "test_name": "qwen7B_tp1_ib",
         "qps_list": [4, 8, 16, 32, "inf"],
         "common_parameters": {
-            "model": "/data/llm/Qwen2.5-7B-Instruct/",
+            "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
             "tp": 1,
             "dataset_name": "ib",
             "dataset_path": "/data/ds/InfiniteBench/",
-            "num_prompts": 500,
+            "num_prompts": 10,
             "port": 8000,
-            "reuse_server": false
+            "reuse_server": false,
+            "ib_input_len_list": [2048, 81920]
         },
         "vllm_server_parameters": {
             "disable_log_stats": "",
             "disable_log_requests": "",
             "gpu_memory_utilization": 0.9,
-            "num_scheduler_steps": 10,
             "max_num_seqs": 512,
             "dtype": "bfloat16"
         },
