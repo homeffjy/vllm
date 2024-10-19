@@ -168,14 +168,14 @@ def sample_infinitebench_requests(
 
         completion = dataset['answer'][i]
         completion_token_ids = tokenizer(completion).input_ids
-        output_len = 10 + len(
-            completion_token_ids  # add 10 for corner case
-        ) if fixed_output_len is None else fixed_output_len
+        output_len = max(10, len(
+            completion_token_ids
+        )) if fixed_output_len is None else fixed_output_len
 
-        print("prompt: " + prompt)
-        print("output: " + str(completion))
-        print("prompt_len: " + str(prompt_len) + " output_len: " +
-              str(output_len))
+        # print("prompt: " + prompt)
+        # print("output: " + str(completion))
+        # print("prompt_len: " + str(prompt_len) + " output_len: " +
+        #       str(output_len))
         filtered_dataset.append((prompt, prompt_len, output_len, None))
 
     return filtered_dataset

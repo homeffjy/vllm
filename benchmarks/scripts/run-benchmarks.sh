@@ -39,6 +39,40 @@ launch_vllm_server() {
   eval "$server_command" &
 }
 
+launch_sglang_server() {
+
+  model=$(echo "$common_params" | jq -r '.model')
+  tp=$(echo "$common_params" | jq -r '.tp')
+  dataset_name=$(echo "$common_params" | jq -r '.dataset_name')
+  dataset_path=$(echo "$common_params" | jq -r '.dataset_path')
+  port=$(echo "$common_params" | jq -r '.port')
+  num_prompts=$(echo "$common_params" | jq -r '.num_prompts')
+  server_args=$(json2args "$server_params")
+
+  if echo "$common_params" | jq -e 'has("fp8")' >/dev/null; then
+    echo "Key 'fp8' exists in common params. Use neuralmagic fp8 model for convenience."
+    model=$(echo "$common_params" | jq -r '.neuralmagic_quantized_model')
+    server_command="python3 \
+        -m sglang.launch_server \
+        --tp $tp \
+        --model-path $model \
+        --port $port \
+        $server_args"
+  else
+    echo "Key 'fp8' does not exist in common params."
+    server_command="python3 \
+        -m sglang.launch_server \
+        --tp $tp \
+        --model-path $model \
+        --port $port \
+        $server_args"
+  fi
+
+  # run the server
+  echo "Server command: $server_command"
+  eval "$server_command" &
+}
+
 check_gpus() {
   # check the number of GPUs and GPU type.
   declare -g gpu_count=$(nvidia-smi --list-gpus | wc -l)
@@ -148,7 +182,13 @@ run_serving_tests() {
     else
       kill_gpu_processes
       
-      launch_vllm_server # can be others
+      if [[ $CURRENT_LLM_SERVING_ENGINE == "sglang" ]]; then
+        launch_sglang_server
+      fi
+
+      if [[ "$CURRENT_LLM_SERVING_ENGINE" == *"vllm"* ]]; then
+        launch_vllm_server
+      fi
     fi
 
     wait_for_server
@@ -183,9 +223,8 @@ run_serving_tests() {
 
       if [[ "$dataset_name" = "sharegpt" ]]; then
 
-        client_command="python3 benchmark_serving.py \
+        client_command="python3 benchmark_serving_ib.py \
           --backend $backend \
-          --tokenizer /tokenizer_cache \
           --model $model \
           --dataset-name $dataset_name \
           --dataset-path $dataset_path \
@@ -200,7 +239,19 @@ run_serving_tests() {
 
       elif [[ "$dataset_name" = "ib" ]]; then
 
-        !!!!!!!!!!!!!!!!!!!!
+        client_command="python3 benchmark_serving_ib.py \
+          --backend $backend \
+          --model $model \
+          --dataset-name $dataset_name \
+          --dataset-path $dataset_path \
+          --num-prompts $num_prompts \
+          --port $port \
+          --save-result \
+          --result-dir $RESULTS_FOLDER \
+          --result-filename ${new_test_name}.json \
+          --request-rate $qps \
+          --ignore-eos \
+          $client_args"
 
       else
   
@@ -241,10 +292,13 @@ run_serving_tests() {
 
 main() {
 
-  # check if the environment variable is successfully injected from yaml
-
+  if [ $# -eq 0 ]; then
+      echo "Error: No argument provided for CURRENT_LLM_SERVING_ENGINE."
+      echo "Usage: $0 <vllm/sglang>"
+      exit 1
+  fi
   check_gpus
-  export CURRENT_LLM_SERVING_ENGINE=vllm
+  export CURRENT_LLM_SERVING_ENGINE="$1"
   export VLLM_SOURCE_CODE_LOC=/sgl-workspace/vllm
 
   pip install -U transformers
@@ -259,12 +313,12 @@ main() {
   cd $VLLM_SOURCE_CODE_LOC/benchmarks
   declare -g RESULTS_FOLDER=results/
   mkdir -p $RESULTS_FOLDER
-  BENCHMARK_ROOT=$VLLM_SOURCE_CODE_LOC/benchmarks/
+  BENCHMARK_ROOT=$VLLM_SOURCE_CODE_LOC/benchmarks
 
   # run the test
   run_serving_tests $BENCHMARK_ROOT/scripts/tests.json
 
-  python3 $BENCHMARK_ROOT/scripts/summary-nightly-results.py
+  python3 $BENCHMARK_ROOT/scripts/summary.py
 }
 
 main "$@"

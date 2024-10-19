@@ -1,6 +1,10 @@
 import json
 
 import matplotlib.pyplot as plt
+import glob
+from pathlib import Path
+
+results_folder = Path("../results")
 
 
 # Function to extract QPS from the test name
@@ -22,13 +26,20 @@ def extract_qps(test_name):
 
 
 # Read vllm.json
-with open('../results/2024-09-04_00-46-47_vllm_055_nightly_results.json',
-          'r') as f:
+vllm_files = results_folder.glob('2*vllm*.json')
+if not vllm_files:
+    raise FileNotFoundError("No file containing 'vllm' found in the directory.")
+vllm_file = list(vllm_files)[0]
+with open(vllm_file, 'r') as f:
     vllm_data = json.load(f)
 
 # Read sglang.json
-# with open('sglang.json', 'r') as f:
-#     sglang_data = json.load(f)
+sglang_files = results_folder.glob('2*sglang*.json')
+if not sglang_files:
+    raise FileNotFoundError("No file containing 'sglang' found in the directory.")
+sglang_file = list(sglang_files)[0]
+with open(sglang_file, 'r') as f:
+    sglang_data = json.load(f)
 
 # Initialize results dictionaries
 vllm_results = {}
@@ -36,7 +47,7 @@ sglang_results = {}
 
 data_list = [
     (vllm_data, vllm_results),
-    #  (sglang_data, sglang_results)
+    (sglang_data, sglang_results)
 ]
 
 # Parse the data and collect metrics
@@ -79,8 +90,9 @@ qps_values_sorted = sorted(qps_values, key=qps_sort_key)
 vllm_ttft = []
 vllm_tpot = []
 vllm_tput = []
-# sglang_ttft = []
-# sglang_tpot = []
+sglang_ttft = []
+sglang_tpot = []
+sglang_tput = []
 
 for qps in qps_values_sorted:
     # vLLM
@@ -96,14 +108,17 @@ for qps in qps_values_sorted:
         vllm_tpot.append(None)
         vllm_tput.append(None)
     # SGLang
-    # if qps in sglang_results:
-    #     s_ttft_values = sglang_results[qps]["TTFT"]
-    #     s_tpot_values = sglang_results[qps]["TPOT"]
-    #     sglang_ttft.append(sum(s_ttft_values)/len(s_ttft_values))
-    #     sglang_tpot.append(sum(s_tpot_values)/len(s_tpot_values))
-    # else:
-    #     sglang_ttft.append(None)
-    #     sglang_tpot.append(None)
+    if qps in sglang_results:
+        s_ttft_values = sglang_results[qps]["TTFT"]
+        s_tpot_values = sglang_results[qps]["TPOT"]
+        s_tput_values = sglang_results[qps]["Throughput"]
+        sglang_ttft.append(sum(s_ttft_values)/len(s_ttft_values))
+        sglang_tpot.append(sum(s_tpot_values)/len(s_tpot_values))
+        sglang_tput.append(sum(s_tput_values) / len(s_tput_values))
+    else:
+        sglang_ttft.append(None)
+        sglang_tpot.append(None)
+        sglang_tput.append(None)
 
 # Figure 1: TTFT vs QPS
 plt.figure()
@@ -112,7 +127,7 @@ plt.xlabel('QPS')
 plt.ylabel('TTFT (ms)')
 x_positions = range(len(qps_values_sorted))  # Positions for x-axis
 plt.plot(x_positions, vllm_ttft, label='vLLM', marker='o')
-# plt.plot(x_positions, sglang_ttft, label='SGLang', marker='x')
+plt.plot(x_positions, sglang_ttft, label='SGLang', marker='x')
 plt.xticks(x_positions, qps_values_sorted)
 plt.legend()
 plt.grid(True)
@@ -124,7 +139,7 @@ plt.title('ShareGPT, TPOT')
 plt.xlabel('QPS')
 plt.ylabel('TPOT (ms)')
 plt.plot(x_positions, vllm_tpot, label='vLLM', marker='o')
-# plt.plot(x_positions, sglang_tpot, label='SGLang', marker='x')
+plt.plot(x_positions, sglang_tpot, label='SGLang', marker='x')
 plt.xticks(x_positions, qps_values_sorted)
 plt.legend()
 plt.grid(True)
@@ -136,7 +151,7 @@ plt.title('ShareGPT, Thoughput')
 plt.xlabel('QPS')
 plt.ylabel('TPUT (req/s)')
 plt.plot(x_positions, vllm_tput, label='vLLM', marker='o')
-# plt.plot(x_positions, sglang_tpot, label='SGLang', marker='x')
+plt.plot(x_positions, sglang_tpot, label='SGLang', marker='x')
 plt.xticks(x_positions, qps_values_sorted)
 plt.legend()
 plt.grid(True)
