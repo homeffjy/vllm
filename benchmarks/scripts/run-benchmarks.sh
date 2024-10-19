@@ -103,13 +103,15 @@ json2args() {
 }
 
 kill_gpu_processes() {
-  pkill -f python
-  pkill -f python3
-  pkill -f tritonserver
-  pkill -f pt_main_thread
-  pkill -f text-generation
-  pkill -f lmdeploy
+  # Kill processes started by the current user
+  pkill -u $(whoami) -f python
+  pkill -u $(whoami) -f python3
+  pkill -u $(whoami) -f tritonserver
+  pkill -u $(whoami) -f pt_main_thread
+  pkill -u $(whoami) -f text-generation
+  pkill -u $(whoami) -f lmdeploy
 
+  # Wait for GPU memory usage to drop below 1000 MiB
   while [ $(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | head -n 1) -ge 1000 ]; do
     sleep 1
   done
@@ -299,7 +301,7 @@ main() {
   fi
   check_gpus
   export CURRENT_LLM_SERVING_ENGINE="$1"
-  export VLLM_SOURCE_CODE_LOC=/sgl-workspace/vllm
+  export VLLM_SOURCE_CODE_LOC=/home/fjy/vllm # Your vLLM project path
 
   pip install -U transformers
 
@@ -317,8 +319,6 @@ main() {
 
   # run the test
   run_serving_tests $BENCHMARK_ROOT/scripts/tests.json
-
-  python3 $BENCHMARK_ROOT/scripts/summary.py
 }
 
 main "$@"

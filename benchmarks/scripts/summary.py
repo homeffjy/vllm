@@ -1,14 +1,12 @@
+import datetime
+import json
+from pathlib import Path
+
 import pandas as pd
 from tabulate import tabulate
-import json
-
-import os
-import datetime
-from pathlib import Path
 
 results_folder = Path("../results/")
 
-serving_results = []
 serving_column_mapping = {
     "test_name": "Test name",
     "gpu_type": "GPU",
@@ -30,52 +28,54 @@ serving_column_mapping = {
     "engine": "Engine",
 }
 
-engine = os.environ.get("CURRENT_LLM_SERVING_ENGINE")
+engines = ["vllm", "sglang"]
 
-# collect results
-for test_file in results_folder.glob("*" + engine + "*qps*.json"):
+for engine in engines:
+    serving_results = []
+    # collect results
+    for test_file in results_folder.glob("*" + engine + "*qps*.json"):
 
-    with open(test_file, "r") as f:
-        raw_result = json.loads(f.read())
+        with open(test_file, "r") as f:
+            raw_result = json.loads(f.read())
 
-    # attach the benchmarking command to raw_result
-    with open(test_file.with_suffix(".commands"), "r") as f:
-        command = json.loads(f.read())
-    raw_result.update(command)
+        # attach the benchmarking command to raw_result
+        with open(test_file.with_suffix(".commands"), "r") as f:
+            command = json.loads(f.read())
+        raw_result.update(command)
 
-    # update the test name of this result
-    raw_result.update({"test_name": test_file.stem})
+        # update the test name of this result
+        raw_result.update({"test_name": test_file.stem})
 
-    # add the result to raw_result
-    serving_results.append(raw_result)
+        # add the result to raw_result
+        serving_results.append(raw_result)
 
-serving_results = pd.DataFrame.from_dict(serving_results)
+    serving_results = pd.DataFrame.from_dict(serving_results)
 
-if not serving_results.empty:
-    serving_results = serving_results[list(
-        serving_column_mapping.keys())].rename(
-            columns=serving_column_mapping)
+    if not serving_results.empty:
+        serving_results = serving_results[list(
+            serving_column_mapping.keys())].rename(
+                columns=serving_column_mapping)
 
-serving_md_table_with_headers = tabulate(serving_results,
-                                            headers='keys',
-                                            tablefmt='pipe',
-                                            showindex=False)
-# remove the first line of header
-serving_md_table_lines = serving_md_table_with_headers.split('\n')
-serving_md_table_without_header = '\n'.join(serving_md_table_lines[2:])
+    serving_md_table_with_headers = tabulate(serving_results,
+                                             headers='keys',
+                                             tablefmt='pipe',
+                                             showindex=False)
+    # remove the first line of header
+    serving_md_table_lines = serving_md_table_with_headers.split('\n')
+    serving_md_table_without_header = '\n'.join(serving_md_table_lines[2:])
 
-prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-prefix = prefix + "_" + engine
+    prefix = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    prefix = prefix + "_" + engine
 
-# document benchmarking results in markdown
-with open(results_folder / f"{prefix}_results.md", "w") as f:
-    # document results with header.
-    # for those who wants to reproduce our benchmark.
-    f.write(serving_md_table_with_headers)
-    f.write('\n')
+    # document benchmarking results in markdown
+    with open(results_folder / f"{prefix}_results.md", "w") as f:
+        # document results with header.
+        # for those who wants to reproduce our benchmark.
+        f.write(serving_md_table_with_headers)
+        f.write('\n')
 
-# document benchmarking results in json
-with open(results_folder / f"{prefix}_results.json", "w") as f:
+    # document benchmarking results in json
+    with open(results_folder / f"{prefix}_results.json", "w") as f:
 
-    results = serving_results.to_dict(orient='records')
-    f.write(json.dumps(results))
+        results = serving_results.to_dict(orient='records')
+        f.write(json.dumps(results))
