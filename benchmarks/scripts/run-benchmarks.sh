@@ -291,9 +291,9 @@ main() {
   fi
   check_gpus
   export CURRENT_LLM_SERVING_ENGINE="$1"
-  export VLLM_SOURCE_CODE_LOC=/home/fjy/vllm # Your vLLM project path
+  export VLLM_SOURCE_CODE_LOC=$(realpath "$(dirname "$0")/../../") # Your vLLM project path
 
-  pip install -U transformers
+  pip install -U transformers matplotlib seaborn tabulate
 
   # check storage
   df -h

@@ -101,7 +101,7 @@ def sample_infinitebench_requests(
 
     dataset = load_dataset(dataset_path, features=ft)
     dataset = dataset[
-        'passkey']  # The passkey dataset's context can be truncated for free
+        'longbook_qa_eng']
     length = len(dataset['answer'])
 
     filtered_dataset: List[Tuple[str, int, int]] = []
@@ -377,9 +377,9 @@ async def benchmark(
         selected_percentiles=selected_percentiles,
     )
 
-    for i in range(len(outputs)):
-        print("output" + str(i) + ": " + outputs[i].generated_text)
-        print("----------------------------------------------")
+    # for i in range(len(outputs)):
+    #     print("output" + str(i) + ": " + outputs[i].generated_text)
+    #     print("----------------------------------------------")
 
     print("{s:{c}^{n}}".format(s=' Serving Benchmark Result ', n=50, c='='))
     print("{:<40} {:<10}".format("Successful requests:", metrics.completed))
@@ -629,7 +629,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--best-of",
         type=int,
-        default=1,
+        default=2, # best-of > 1 to enable swap
         help="Generates `best_of` sequences per prompt and "
         "returns the best one.",
     )

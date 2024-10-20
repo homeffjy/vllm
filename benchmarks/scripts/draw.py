@@ -1,153 +1,197 @@
 import json
 from pathlib import Path
-
+import re
+import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 results_folder = Path("../results")
 
 
 # Function to extract QPS from the test name
 def extract_qps(test_name):
-    # The QPS is indicated at the end of the test name like 'qps_2' or 'qps_inf'
-    parts = test_name.split('_')
-    for i, part in enumerate(parts):
-        if part == 'qps':
+    match = re.search(r'qps_([^_]+)', test_name)
+    if match:
+        qps_str = match.group(1)
+        if qps_str == 'inf':
+            return float('inf')
+        else:
             try:
-                qps = parts[i + 1]
-                if qps == 'inf':
-                    return 'inf'
-                else:
-                    return int(qps)
-            except IndexError:
-                pass
-    # If 'qps' not found or invalid, return None
-    return None
+                return float(qps_str)
+            except ValueError:
+                return None
+    else:
+        return None
 
 
-# Read vllm.json
-vllm_files = results_folder.glob('2*vllm*.json')
+# Function to extract Input Length from the test name
+def extract_input_length(test_name):
+    match = re.search(r'in_(\d+)', test_name)
+    if match:
+        return int(match.group(1))
+    else:
+        return None
+
+
+# Read vllm.json files
+vllm_files = list(results_folder.glob('2*vllm*.json'))
 if not vllm_files:
-    raise FileNotFoundError(
-        "No file containing 'vllm' found in the directory.")
-vllm_file = list(vllm_files)[0]
+    raise FileNotFoundError("No file containing 'vllm' found in the directory.")
+vllm_file = vllm_files[0]
 with open(vllm_file, 'r') as f:
     vllm_data = json.load(f)
 
-# Read sglang.json
-sglang_files = results_folder.glob('2*sglang*.json')
+# Read sglang.json files
+sglang_files = list(results_folder.glob('2*sglang*.json'))
 if not sglang_files:
-    raise FileNotFoundError(
-        "No file containing 'sglang' found in the directory.")
-sglang_file = list(sglang_files)[0]
+    raise FileNotFoundError("No file containing 'sglang' found in the directory.")
+sglang_file = sglang_files[0]
 with open(sglang_file, 'r') as f:
     sglang_data = json.load(f)
 
-# Initialize results dictionaries
-vllm_results = {}
-sglang_results = {}
+# Combine the data into a single list
+all_data = vllm_data + sglang_data
 
-data_list = [(vllm_data, vllm_results), (sglang_data, sglang_results)]
+# Initialize an empty list to collect data
+data_list = []
 
 # Parse the data and collect metrics
-for data, results in data_list:
-    # Ensure data is a list
-    if not isinstance(data, list):
-        data = [data]
-    for entry in data:
-        test_name = entry.get("Test name", "")
-        qps = extract_qps(test_name)
-        if qps is not None:
-            # Collect data
-            ttft = entry.get("Mean TTFT (ms)", 0)
-            tpot = entry.get("Mean TPOT (ms)", 0)
-            tput_req_s = entry.get("Tput (req/s)", 0)
-            qps_str = str(qps)  # Use QPS as string for consistent keys
-            if qps_str not in results:
-                # Initialize dict for this QPS
-                results[qps_str] = {"TTFT": [], "TPOT": [], "Throughput": []}
-            # Append data
-            results[qps_str]["TTFT"].append(ttft)
-            results[qps_str]["TPOT"].append(tpot)
-            results[qps_str]["Throughput"].append(tput_req_s)
-        else:
-            print(f"QPS not found in test name: {test_name}")
+for entry in all_data:
+    test_name = entry.get("Test name", "")
+    engine = entry.get("Engine", "")
 
-# List of QPS values as strings
-qps_values = set(list(vllm_results.keys()) + list(sglang_results.keys()))
-
-
-# Convert numerical QPS strings to integers for sorting, keep 'inf' as is
-def qps_sort_key(qps):
-    return float('inf') if qps == 'inf' else int(qps)
-
-
-# Sort QPS values
-qps_values_sorted = sorted(qps_values, key=qps_sort_key)
-
-# Prepare data for plotting
-vllm_ttft = []
-vllm_tpot = []
-vllm_tput = []
-sglang_ttft = []
-sglang_tpot = []
-sglang_tput = []
-
-for qps in qps_values_sorted:
-    # vLLM
-    if qps in vllm_results:
-        v_ttft_values = vllm_results[qps]["TTFT"]
-        v_tpot_values = vllm_results[qps]["TPOT"]
-        v_tput_values = vllm_results[qps]["Throughput"]
-        vllm_ttft.append(sum(v_ttft_values) / len(v_ttft_values))
-        vllm_tpot.append(sum(v_tpot_values) / len(v_tpot_values))
-        vllm_tput.append(sum(v_tput_values) / len(v_tput_values))
+    qps = extract_qps(test_name)
+    input_length = entry.get("Input Length", None)
+    if input_length is None:
+        input_length = extract_input_length(test_name)
+    
+    if qps is not None and input_length is not None:
+        # Collect data
+        ttft = entry.get("Mean TTFT (ms)", 0)
+        tpot = entry.get("Mean TPOT (ms)", 0)
+        tput_req_s = entry.get("Tput (req/s)", 0)
+        data_list.append({
+            "Engine": engine,
+            "QPS": qps,
+            "Input Length": input_length,
+            "TTFT (ms)": ttft,
+            "TPOT (ms)": tpot,
+            "Throughput (req/s)": tput_req_s
+        })
     else:
-        vllm_ttft.append(None)
-        vllm_tpot.append(None)
-        vllm_tput.append(None)
-    # SGLang
-    if qps in sglang_results:
-        s_ttft_values = sglang_results[qps]["TTFT"]
-        s_tpot_values = sglang_results[qps]["TPOT"]
-        s_tput_values = sglang_results[qps]["Throughput"]
-        sglang_ttft.append(sum(s_ttft_values) / len(s_ttft_values))
-        sglang_tpot.append(sum(s_tpot_values) / len(s_tpot_values))
-        sglang_tput.append(sum(s_tput_values) / len(s_tput_values))
-    else:
-        sglang_ttft.append(None)
-        sglang_tpot.append(None)
-        sglang_tput.append(None)
+        print(f"QPS or Input Length not found in test name: {test_name}")
+        # You can choose to skip this entry or handle it accordingly
 
-# Figure 1: TTFT vs QPS
-plt.figure()
-plt.xlabel('QPS')
-plt.ylabel('TTFT (ms)')
-x_positions = range(len(qps_values_sorted))  # Positions for x-axis
-plt.plot(x_positions, vllm_ttft, label='vLLM', marker='o')
-plt.plot(x_positions, sglang_ttft, label='SGLang', marker='x')
-plt.xticks(x_positions, qps_values_sorted)
-plt.legend()
-plt.grid(True)
-plt.savefig('ttft_vs_qps.png')
+# Convert data_list into a DataFrame
+df = pd.DataFrame(data_list)
 
-# Figure 2: TPOT vs QPS
-plt.figure()
-plt.xlabel('QPS')
-plt.ylabel('TPOT (ms)')
-plt.plot(x_positions, vllm_tpot, label='vLLM', marker='o')
-plt.plot(x_positions, sglang_tpot, label='SGLang', marker='x')
-plt.xticks(x_positions, qps_values_sorted)
-plt.legend()
-plt.grid(True)
-plt.savefig('tpot_vs_qps.png')
+# Filtering out entries with QPS == inf for certain plots
+df_filtered = df[df['QPS'] != float('inf')]
 
-# Figure 3: TPUT vs QPS
-plt.figure()
-plt.xlabel('QPS')
-plt.ylabel('TPUT (req/s)')
-plt.plot(x_positions, vllm_tput, label='vLLM', marker='o')
-plt.plot(x_positions, sglang_tput, label='SGLang', marker='x')
-plt.xticks(x_positions, qps_values_sorted)
-plt.legend()
-plt.grid(True)
-plt.savefig('tput_vs_qps.png')
+# Convert QPS to int for plotting purposes (exclude inf)
+df_filtered['QPS'] = df_filtered['QPS'].astype(int)
+
+sns.set(style='whitegrid')
+
+# Plotting TTFT vs Input Length for each Engine, grouped by QPS
+plt.figure(figsize=(10, 6))
+sns.lineplot(
+    data=df_filtered,
+    x='Input Length', y='TTFT (ms)', hue='Engine', style='QPS',
+    markers=True, dashes=False
+)
+plt.title('TTFT vs Input Length')
+plt.savefig('ttft_vs_input_length.png')
+plt.clf()
+
+# Plotting TPOT vs Input Length for each Engine, grouped by QPS
+plt.figure(figsize=(10, 6))
+sns.lineplot(
+    data=df_filtered,
+    x='Input Length', y='TPOT (ms)', hue='Engine', style='QPS',
+    markers=True, dashes=False
+)
+plt.title('TPOT vs Input Length')
+plt.savefig('tpot_vs_input_length.png')
+plt.clf()
+
+# Plotting Throughput vs Input Length for each Engine, grouped by QPS
+plt.figure(figsize=(10, 6))
+sns.lineplot(
+    data=df_filtered,
+    x='Input Length', y='Throughput (req/s)', hue='Engine', style='QPS',
+    markers=True, dashes=False
+)
+plt.title('Throughput vs Input Length')
+plt.savefig('throughput_vs_input_length.png')
+plt.clf()
+
+# Handling QPS == inf separately
+df_inf_qps = df[df['QPS'] == float('inf')]
+if not df_inf_qps.empty:
+    # TTFT vs Input Length at QPS == inf
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(
+        data=df_inf_qps,
+        x='Input Length', y='TTFT (ms)', hue='Engine',
+        markers=True, dashes=False
+    )
+    plt.title('TTFT vs Input Length at QPS == inf')
+    plt.savefig('ttft_vs_input_length_qps_inf.png')
+    plt.clf()
+
+    # TPOT vs Input Length at QPS == inf
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(
+        data=df_inf_qps,
+        x='Input Length', y='TPOT (ms)', hue='Engine',
+        markers=True, dashes=False
+    )
+    plt.title('TPOT vs Input Length at QPS == inf')
+    plt.savefig('tpot_vs_input_length_qps_inf.png')
+    plt.clf()
+
+    # Throughput vs Input Length at QPS == inf
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(
+        data=df_inf_qps,
+        x='Input Length', y='Throughput (req/s)', hue='Engine',
+        markers=True, dashes=False
+    )
+    plt.title('Throughput vs Input Length at QPS == inf')
+    plt.savefig('throughput_vs_input_length_qps_inf.png')
+    plt.clf()
+
+# Additionally, you can plot metrics vs QPS for each Input Length
+input_lengths = df_filtered['Input Length'].unique()
+for input_length in input_lengths:
+    df_il = df_filtered[df_filtered['Input Length'] == input_length]
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(
+        data=df_il,
+        x='QPS', y='TTFT (ms)', hue='Engine',
+        markers=True, dashes=False
+    )
+    plt.title(f'TTFT vs QPS at Input Length {input_length}')
+    plt.savefig(f'ttft_vs_qps_input_length_{input_length}.png')
+    plt.clf()
+
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(
+        data=df_il,
+        x='QPS', y='TPOT (ms)', hue='Engine',
+        markers=True, dashes=False
+    )
+    plt.title(f'TPOT vs QPS at Input Length {input_length}')
+    plt.savefig(f'tpot_vs_qps_input_length_{input_length}.png')
+    plt.clf()
+
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(
+        data=df_il,
+        x='QPS', y='Throughput (req/s)', hue='Engine',
+        markers=True, dashes=False
+    )
+    plt.title(f'Throughput vs QPS at Input Length {input_length}')
+    plt.savefig(f'throughput_vs_qps_input_length_{input_length}.png')
+    plt.clf()

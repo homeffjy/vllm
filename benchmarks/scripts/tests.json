@@ -1,22 +1,24 @@
 [
     {
-        "test_name": "qwen7B_tp1_ib",
-        "qps_list": [1, 2, 4, 8, 16, 32],
+        "test_name": "qwen7B_ib",
+        "qps_list": [1, 4, 16, 64],
         "common_parameters": {
             "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
             "tp": 1,
             "dataset_name": "ib",
             "dataset_path": "/data/ds/InfiniteBench/",
-            "num_prompts": 10,
+            "num_prompts": 64,
             "port": 8000,
             "reuse_server": false,
-            "ib_input_len_list": [2048, 5120, 10240, 20480, 40960, 81920]
+            "ib_input_len_list": [2048, 10240, 40960, 81920]
         },
         "vllm_server_parameters": {
-            "disable_log_stats": "",
             "disable_log_requests": "",
             "gpu_memory_utilization": 0.9,
             "max_num_seqs": 512,
+            "enable_chunked_prefill": true,
+            "max_num_batched_tokens": 512,
+            "swap_space": 0,
             "dtype": "bfloat16"
         },
         "vllm_client_parameters": {
@@ -24,10 +26,71 @@
         "sglang_server_parameters": {
             "disable_radix_cache": "",
             "enable_torch_compile": "",
-            "max_running_request": 2560,
+            "mem_fraction_static": 0.9,
+            "max_running_request": 512,
+            "chunked_prefill_size": 512,
             "dtype": "bfloat16"
         },
         "sglang_client_parameters": {
+        }
+    },
+    {
+        "test_name": "qwen7B_ib_prefix",
+        "qps_list": [1, 4, 16, 64],
+        "common_parameters": {
+            "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+            "tp": 1,
+            "dataset_name": "ib",
+            "dataset_path": "/data/ds/InfiniteBench/",
+            "num_prompts": 64,
+            "port": 8000,
+            "reuse_server": false,
+            "ib_input_len_list": [2048, 10240, 40960, 81920]
+        },
+        "vllm_server_parameters": {
+            "enable_prefix_caching": true,
+            "disable_log_requests": "",
+            "gpu_memory_utilization": 0.9,
+            "max_num_seqs": 512,
+            "enable_chunked_prefill": true,
+            "max_num_batched_tokens": 512,
+            "swap_space": 0,
+            "dtype": "bfloat16"
+        },
+        "vllm_client_parameters": {
+        },
+        "sglang_server_parameters": {
+            "enable_torch_compile": "",
+            "mem_fraction_static": 0.9,
+            "max_running_request": 512,
+            "chunked_prefill_size": 512,
+            "dtype": "bfloat16"
+        },
+        "sglang_client_parameters": {
+        }
+    },
+    {
+        "test_name": "qwen7B_ib_prefix_cpu",
+        "qps_list": [1, 4, 16, 64],
+        "common_parameters": {
+            "model": "/data/llm/Qwen2.5-7B-Instruct-copy/",
+            "tp": 1,
+            "dataset_name": "ib",
+            "dataset_path": "/data/ds/InfiniteBench/",
+            "num_prompts": 64,
+            "port": 8000,
+            "reuse_server": false,
+            "ib_input_len_list": [2048, 10240, 40960, 81920]
+        },
+        "vllm_server_parameters": {
+            "enable_prefix_caching": true,
+            "disable_log_requests": "",
+            "gpu_memory_utilization": 0.9,
+            "max_num_seqs": 512,
+            "enable_chunked_prefill": true,
+            "max_num_batched_tokens": 512,
+            "swap_space": 16,
+            "dtype": "bfloat16"
         }
     }
 ]
