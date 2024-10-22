@@ -48,7 +48,7 @@
             "ib_input_len_list": [2048, 10240, 40960, 81920]
         },
         "vllm_server_parameters": {
-            "enable_prefix_caching": true,
+            "enable_prefix_caching": "",
             "disable_log_requests": "",
             "gpu_memory_utilization": 0.9,
             "max_num_seqs": 512,
@@ -83,7 +83,7 @@
             "ib_input_len_list": [2048, 10240, 40960, 81920]
         },
         "vllm_server_parameters": {
-            "enable_prefix_caching": true,
+            "enable_prefix_caching": "",
             "disable_log_requests": "",
             "gpu_memory_utilization": 0.9,
             "max_num_seqs": 512,

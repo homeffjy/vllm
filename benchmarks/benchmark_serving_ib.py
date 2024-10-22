@@ -629,7 +629,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--best-of",
         type=int,
-        default=2, # best-of > 1 to enable swap
+        default=1, # best-of > 1 to enable swap
         help="Generates `best_of` sequences per prompt and "
         "returns the best one.",
     )
