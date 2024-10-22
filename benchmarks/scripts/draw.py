@@ -32,6 +32,9 @@ def extract_input_length(test_name):
     else:
         return None
 
+# Function to determine if 'prefix' is in the test name
+def is_prefix_in_test_name(test_name):
+    return 'prefix' in test_name
 
 # Read vllm.json files
 vllm_files = list(results_folder.glob('2*vllm*.json'))
@@ -64,134 +67,136 @@ for entry in all_data:
     input_length = entry.get("Input Length", None)
     if input_length is None:
         input_length = extract_input_length(test_name)
-    
+
+    is_prefix = is_prefix_in_test_name(test_name)
+
     if qps is not None and input_length is not None:
         # Collect data
         ttft = entry.get("Mean TTFT (ms)", 0)
         tpot = entry.get("Mean TPOT (ms)", 0)
-        tput_req_s = entry.get("Tput (req/s)", 0)
+        output_tput_tok_s = entry.get("Output Tput (tok/s)", 0)
         data_list.append({
             "Engine": engine,
             "QPS": qps,
             "Input Length": input_length,
             "TTFT (ms)": ttft,
             "TPOT (ms)": tpot,
-            "Throughput (req/s)": tput_req_s
+            "Output Throughput (tok/s)": output_tput_tok_s,
+            "Prefix": 'Prefix' if is_prefix else 'Non-Prefix'  # Use string for better labels
         })
     else:
         print(f"QPS or Input Length not found in test name: {test_name}")
-        # You can choose to skip this entry or handle it accordingly
 
 # Convert data_list into a DataFrame
 df = pd.DataFrame(data_list)
 
+# Convert 'Prefix' to string for plotting purposes
+df['Prefix'] = df['Prefix'].astype(str)
+
 # Filtering out entries with QPS == inf for certain plots
 df_filtered = df[df['QPS'] != float('inf')]
 
-# Convert QPS to int for plotting purposes (exclude inf)
-df_filtered['QPS'] = df_filtered['QPS'].astype(int)
+# Drop entries with missing QPS values
+df_filtered = df_filtered.dropna(subset=['QPS'])
+
+# Convert QPS to float for plotting purposes
+df_filtered['QPS'] = df_filtered['QPS'].astype(float)
 
 sns.set(style='whitegrid')
 
-# Plotting TTFT vs Input Length for each Engine, grouped by QPS
-plt.figure(figsize=(10, 6))
-sns.lineplot(
-    data=df_filtered,
-    x='Input Length', y='TTFT (ms)', hue='Engine', style='QPS',
-    markers=True, dashes=False
-)
-plt.title('TTFT vs Input Length')
-plt.savefig('ttft_vs_input_length.png')
-plt.clf()
+unique_qps_values = sorted(df_filtered['QPS'].unique())
 
-# Plotting TPOT vs Input Length for each Engine, grouped by QPS
-plt.figure(figsize=(10, 6))
-sns.lineplot(
-    data=df_filtered,
-    x='Input Length', y='TPOT (ms)', hue='Engine', style='QPS',
-    markers=True, dashes=False
-)
-plt.title('TPOT vs Input Length')
-plt.savefig('tpot_vs_input_length.png')
-plt.clf()
-
-# Plotting Throughput vs Input Length for each Engine, grouped by QPS
-plt.figure(figsize=(10, 6))
-sns.lineplot(
-    data=df_filtered,
-    x='Input Length', y='Throughput (req/s)', hue='Engine', style='QPS',
-    markers=True, dashes=False
-)
-plt.title('Throughput vs Input Length')
-plt.savefig('throughput_vs_input_length.png')
-plt.clf()
-
-# Handling QPS == inf separately
-df_inf_qps = df[df['QPS'] == float('inf')]
-if not df_inf_qps.empty:
-    # TTFT vs Input Length at QPS == inf
-    plt.figure(figsize=(10, 6))
+# Plotting TTFT vs Input Length for each QPS, comparing Prefix and Non-Prefix
+for qps in unique_qps_values:
+    df_qps = df_filtered[df_filtered['QPS'] == qps]
+    plt.figure(figsize=(12, 8))
     sns.lineplot(
-        data=df_inf_qps,
-        x='Input Length', y='TTFT (ms)', hue='Engine',
-        markers=True, dashes=False
+        data=df_qps,
+        x='Input Length',
+        y='TTFT (ms)',
+        hue='Prefix',
+        style='Engine',
+        markers=True,
+        dashes=False,
+        
     )
-    plt.title('TTFT vs Input Length at QPS == inf')
-    plt.savefig('ttft_vs_input_length_qps_inf.png')
+    plt.title(f'TTFT vs Input Length at QPS {qps}')
+    plt.xlabel('Input Length')
+    plt.ylabel('TTFT (ms)')
+    plt.legend(title='Prefix / Engine')
+    plt.savefig(f'ttft_vs_input_length_qps_{qps}.png')
     plt.clf()
 
-    # TPOT vs Input Length at QPS == inf
-    plt.figure(figsize=(10, 6))
+# Plotting TPOT vs Input Length, comparing Prefix and Non-Prefix
+for qps in unique_qps_values:
+    df_qps = df_filtered[df_filtered['QPS'] == qps]
+    plt.figure(figsize=(12, 8))
     sns.lineplot(
-        data=df_inf_qps,
-        x='Input Length', y='TPOT (ms)', hue='Engine',
-        markers=True, dashes=False
+        data=df_qps,
+        x='Input Length',
+        y='TPOT (ms)',
+        hue='Prefix',
+        style='Engine',
+        markers=True,
+        dashes=False,
+        
     )
-    plt.title('TPOT vs Input Length at QPS == inf')
-    plt.savefig('tpot_vs_input_length_qps_inf.png')
+    plt.title(f'TPOT vs Input Length at QPS {qps}')
+    plt.xlabel('Input Length')
+    plt.ylabel('TPOT (ms)')
+    plt.legend(title='Prefix / Engine')
+    plt.savefig(f'tpot_vs_input_length_qps_{qps}.png')
+    plt.clf()
+    
+
+# Plotting Output Throughput vs Input Length for each QPS, comparing Prefix and Non-Prefix
+for qps in unique_qps_values:
+    df_qps = df_filtered[df_filtered['QPS'] == qps]
+    plt.figure(figsize=(12, 8))
+    sns.lineplot(
+        data=df_qps,
+        x='Input Length',
+        y='Output Throughput (tok/s)',
+        hue='Prefix',
+        style='Engine',
+        markers=True,
+        dashes=False,
+        
+    )
+    plt.title(f'Output Throughput vs Input Length at QPS {qps}')
+    plt.xlabel('Input Length')
+    plt.ylabel('Output Throughput (tok/s)')
+    plt.legend(title='Prefix / Engine')
+    plt.savefig(f'output_throughput_vs_input_length_qps_{qps}.png')
     plt.clf()
 
-    # Throughput vs Input Length at QPS == inf
-    plt.figure(figsize=(10, 6))
-    sns.lineplot(
-        data=df_inf_qps,
-        x='Input Length', y='Throughput (req/s)', hue='Engine',
-        markers=True, dashes=False
-    )
-    plt.title('Throughput vs Input Length at QPS == inf')
-    plt.savefig('throughput_vs_input_length_qps_inf.png')
-    plt.clf()
-
-# Additionally, you can plot metrics vs QPS for each Input Length
-input_lengths = df_filtered['Input Length'].unique()
+# Additionally, plot metrics vs QPS for each Input Length, comparing Prefix and Non-Prefix
+input_lengths = sorted(df_filtered['Input Length'].unique())
 for input_length in input_lengths:
     df_il = df_filtered[df_filtered['Input Length'] == input_length]
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(12, 8))
     sns.lineplot(
         data=df_il,
-        x='QPS', y='TTFT (ms)', hue='Engine',
-        markers=True, dashes=False
+        x='QPS', y='TTFT (ms)', hue='Prefix', style='Engine', markers=True, dashes=False
     )
     plt.title(f'TTFT vs QPS at Input Length {input_length}')
-    plt.savefig(f'ttft_vs_qps_input_length_{input_length}.png')
+    plt.savefig(f'ttft_vs_qps_input_length_{input_length}_prefix_comparison.png')
     plt.clf()
 
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(12, 8))
     sns.lineplot(
         data=df_il,
-        x='QPS', y='TPOT (ms)', hue='Engine',
-        markers=True, dashes=False
+        x='QPS', y='TPOT (ms)', hue='Prefix', style='Engine', markers=True, dashes=False
     )
     plt.title(f'TPOT vs QPS at Input Length {input_length}')
-    plt.savefig(f'tpot_vs_qps_input_length_{input_length}.png')
+    plt.savefig(f'tpot_vs_qps_input_length_{input_length}_prefix_comparison.png')
     plt.clf()
 
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(12, 8))
     sns.lineplot(
         data=df_il,
-        x='QPS', y='Throughput (req/s)', hue='Engine',
-        markers=True, dashes=False
+        x='QPS', y='Output Throughput (tok/s)', hue='Prefix', style='Engine', markers=True, dashes=False
     )
-    plt.title(f'Throughput vs QPS at Input Length {input_length}')
-    plt.savefig(f'throughput_vs_qps_input_length_{input_length}.png')
+    plt.title(f'Output Throughput vs QPS at Input Length {input_length}')
+    plt.savefig(f'output_throughput_vs_qps_input_length_{input_length}_prefix_comparison.png')
     plt.clf()

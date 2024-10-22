@@ -1,0 +1,6 @@
+{
+  "server_command": "None",
+  "client_command": "python3 benchmark_serving_ib.py             --backend vllm             --model /data/llm/Qwen2.5-7B-Instruct-copy/             --dataset-name ib             --dataset-path /data/ds/InfiniteBench/             --num-prompts 64             --port 8000             --save-result             --result-dir results/             --result-filename vllm_qwen7B_ib_qps_1_in_81920.json             --request-rate 1             --ignore-eos             --ib-input-len 81920             ",
+  "gpu_type": "A100-SXM4-40GB",
+  "engine": "vllm"
+}

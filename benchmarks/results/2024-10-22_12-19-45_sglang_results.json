@@ -1,0 +1,22 @@
+[
+    {
+        "Test name": "sglang_qwen7B_ib_qps_1_in_2048",
+        "GPU": "A100-SXM4-40GB",
+        "Successful req.": 64,
+        "Tput (req/s)": 1.0008500168423127,
+        "Mean TTFT (ms)": 197.04136178188492,
+        "Std TTFT (ms)": 50.55381890751076,
+        "Median TTFT (ms)": 181.95275589823723,
+        "Mean ITL (ms)": 15.111786380852077,
+        "Std ITL (ms)": 25.249144101560503,
+        "Median ITL (ms)": 12.185707688331604,
+        "Mean TPOT (ms)": 15.111489714907457,
+        "Std TPOT (ms)": 2.432229165079556,
+        "Median TPOT (ms)": 14.75094846911787,
+        "Total Token Tput (tok/s)": 2177.8339983673595,
+        "Output Tput (tok/s)": 128.09316387430286,
+        "Total input tokens": 131072,
+        "Total output tokens": 8191,
+        "Engine": "sglang"
+    }
+]
